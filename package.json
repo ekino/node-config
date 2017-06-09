@@ -1,0 +1,51 @@
+{
+  "name": "@ekino/config",
+  "version": "0.1.0",
+  "description": "lightweight configuration module powered by yaml",
+  "homepage": "https://github.com/ekino/node-config",
+  "main": "index.js",
+  "repository": {
+      "type": "git",
+      "url": "https://github.com/ekino/node-logger.git"
+  },
+  "maintainers": [
+      {
+          "name": "Raphaël Benitte"
+      },
+      {
+          "name": "Nadim El-Boustani"
+      }
+   ],
+  "author": "ekino OSS <oss@ekino.com>",
+  "license": "MIT",
+  "tags": [
+    "config",
+    "yaml",
+    "lightweight"
+  ],
+  "engines": {
+      "node": ">=6.0.0"
+  },
+  "dependencies": {
+    "js-yaml": "3.x.x",
+    "lodash": "4.x.x"
+  },
+  "devDependencies": {
+      "ava": "0.19.1",
+      "coveralls": "2.x.x",
+      "eslint": "3.x.x",
+      "git-changelog": "1.x.x",
+      "nyc": "11.x.x",
+      "prettier": "1.x.x"
+  },
+  "scripts": {
+      "fmt": "prettier --print-width 140 --tab-width=4 --single-quote --bracket-spacing --no-semi --color --write index.js test/*.js test/**/*.js",
+      "check-fmt": "prettier --print-width 140 --tab-width=4 --single-quote --bracket-spacing --no-semi --list-different index.js test/*.js test/**/*.js",
+      "test": "ava",
+      "test-cover": "nyc ava",
+      "coverage": "nyc report --reporter=text-lcov | coveralls",
+      "changelog": "git-changelog -t false -n v${npm_package_version}",
+      "version": "echo ${npm_package_version}",
+      "lint": "eslint ."
+  }
+}

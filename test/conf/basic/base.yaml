@@ -1,0 +1,4 @@
+port: 8082
+version: 0.0.2
+name: test-app2
+uuid: 01A2

@@ -1,0 +1,9 @@
+PORT:
+  key: port
+  type: number
+NAME:
+  key: name
+VERSION: version
+ID:
+  key: id
+  type: number
