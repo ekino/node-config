@@ -53,18 +53,46 @@ test.cb('I can override config values with NODE_ENV config file and env values i
 test.cb('I can cast env values overrides', t => {
     const testPath = `${__dirname}/helpers/child.load_conf.js`
 
-    const env = { PORT: 8080, NAME: 'app', ID: '12' }
+    const env = { PORT: 8080, NAME: 'app', ID: '12', USE_SSL: 'false', USE_MOCKS: 1 }
     const child = childProcess.fork(testPath, { env: env })
 
     child.on('message', content => {
         t.deepEqual(typeof content.port, 'number')
         t.deepEqual(typeof content.name, 'string')
         t.deepEqual(typeof content.id, 'number')
+        t.deepEqual(typeof content.useSsl, 'boolean')
+        t.deepEqual(typeof content.useMocks, 'boolean')
         t.end()
     })
 })
 
-test.cb('It throws an error when cast on env value fails', t => {
+test.cb('I can cast truthy boolean env values overrides', t => {
+    const testPath = `${__dirname}/helpers/child.load_conf.js`
+
+    const env = { USE_SSL: 'true', USE_MOCKS: 1 }
+    const child = childProcess.fork(testPath, { env: env })
+
+    child.on('message', content => {
+        t.is(content.useSsl, true)
+        t.is(content.useMocks, true)
+        t.end()
+    })
+})
+
+test.cb('I can cast falsy boolean env values overrides', t => {
+    const testPath = `${__dirname}/helpers/child.load_conf.js`
+
+    const env = { USE_SSL: 'false', USE_MOCKS: 0 }
+    const child = childProcess.fork(testPath, { env: env })
+
+    child.on('message', content => {
+        t.is(content.useSsl, false)
+        t.is(content.useMocks, false)
+        t.end()
+    })
+})
+
+test.cb('It throws an error when number cast on env value fails', t => {
     const testPath = `${__dirname}/helpers/child.catch_conf_errors.js`
 
     const env = { PORT: 'NotANumber' }
@@ -73,6 +101,32 @@ test.cb('It throws an error when cast on env value fails', t => {
     child.on('message', content => {
         t.deepEqual(content.name, 'Error')
         t.deepEqual(content.message, 'Config error : expected a number got NotANumber')
+        t.end()
+    })
+})
+
+test.cb('It throws an error when boolean string cast on env value fails', t => {
+    const testPath = `${__dirname}/helpers/child.catch_conf_errors.js`
+
+    const env = { USE_SSL: 'NotABoolean' }
+    const child = childProcess.fork(testPath, { env: env })
+
+    child.on('message', content => {
+        t.deepEqual(content.name, 'Error')
+        t.deepEqual(content.message, 'Config error : expected a boolean got NotABoolean')
+        t.end()
+    })
+})
+
+test.cb('It throws an error when boolean number cast on env value fails', t => {
+    const testPath = `${__dirname}/helpers/child.catch_conf_errors.js`
+
+    const env = { USE_MOCKS: 42 }
+    const child = childProcess.fork(testPath, { env: env })
+
+    child.on('message', content => {
+        t.deepEqual(content.name, 'Error')
+        t.deepEqual(content.message, 'Config error : expected a boolean got 42')
         t.end()
     })
 })

@@ -7,3 +7,10 @@ VERSION: version
 ID:
   key: id
   type: number
+USE_SSL:
+  key: useSsl
+  type: boolean
+USE_MOCKS:
+  key: useMocks
+  type: boolean
+  
