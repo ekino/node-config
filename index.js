@@ -61,13 +61,20 @@ internals.read = path => {
 }
 
 internals.cast = (type, value) => {
-    if (type === 'number') {
-        const result = Number(value)
-        if (_.isNaN(result)) throw new Error(`Config error : expected a number got ${value}`)
+    switch (type) {
+        case 'number': {
+            const result = Number(value)
+            if (_.isNaN(result)) throw new Error(`Config error : expected a number got ${value}`)
 
-        return result
+            return result
+        }
+        case 'boolean':
+            if (!_.includes(['true', 'false', '0', '1'], value)) throw new Error(`Config error : expected a boolean got ${value}`)
+
+            return value === 'true' || value === '1'
+        default:
+            return value
     }
-    return value
 }
 
 /**
