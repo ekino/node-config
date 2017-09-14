@@ -11,8 +11,9 @@ A lightweight/opinionated/versatile configuration module powered by yaml.
 - [Installation](#installation)
 - [Usage](#usage)
   - [Environment variables override](#environment-variables-override)
-  - [NODE_ENV override](#node-env-override)
-  - [More overrides :smiling_imp:](#more-overrides)
+  - [NODE_ENV override](#node_env-override)
+  - [More overrides](#more-overrides) :smiling_imp:
+  - [Inheritance model](#inheritance-model)
 
 ## Motivation
 
@@ -33,7 +34,7 @@ we wanted simple config management with the following features:
 - Env variables support
 
 Several modules already exist, but none of them matched our requirements,
-some we're far too limited and others were, in our opinion, really bloated.
+some were far too limited and others, in our opinion, really bloated.
 
 We chose yaml because it automatically covered several requirements,
 it's concise compared to json, you can add comments, it supports types
@@ -47,6 +48,7 @@ everyone adding its favorite flavor.
 Then we used environment variables to load overrides or define some specific keys,
 it makes really easy to tweak your config depending on the environment
 you're running on without touching a single line of code or even a config file.
+Really handy when using Docker heavily.
 
 We used this code across several projects (a small file comprised of ~100 loc at this time),
 and improved it when required.
@@ -217,7 +219,7 @@ you have another available level of override using `CONF_OVERRIDES`.
 > Please make sure you really need it before using it
 > as it makes more unclear what the final config will be.
 
-Let's say we'got those config files:
+Let's say we've got those config files:
 
 ```yaml
 # /conf/base.yaml
@@ -296,10 +298,23 @@ if you take this example:
 NODE_ENV=prod CONF_OVERRIDES=aws,prod node test.js
 ```
 
-the second `prod` defined inside `CONF_OVERRIDES` will be ignored as it has been already loaded
+the second `prod` value defined inside `CONF_OVERRIDES` will be ignored as it has been already loaded
 because of `NODE_ENV=prod`. 
 
 :warning: The `env_mapping.yaml` will always take precedence over files overrides.
+
+### Inheritance model
+
+```
+base.yaml <— [<NODE_ENV>.yaml] <— [<CONF_OVERRIDES>.yaml] <— [env_mapping.yaml] 
+```
+
+*All files surrounded by `[]` are optional.* 
+
+1. Load config from `base.yaml`
+2. If `NODE_ENV` is defined & `<NODE_ENV>.yaml` exists, load it
+3. If `CONF_OVERRIDES` is defined, load each corresponding file if it exists
+4. If `env_mapping.yaml` exists and some environment variables match, override with those values
 
 [npm-image]: https://img.shields.io/npm/v/@ekino/config.svg?style=flat-square
 [npm-url]: https://www.npmjs.com/package/@ekino/config
