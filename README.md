@@ -5,13 +5,54 @@
 [![Coverage Status][coverage-image]][coverage-url]
 [![styled with prettier][prettier-image]][prettier-url]
 
-A lightweight configuration module powered by yaml.
+A lightweight/opinionated/versatile configuration module powered by yaml.
 
+- [Motivation](#motivation)
 - [Installation](#installation)
 - [Usage](#usage)
   - [Environment variables override](#environment-variables-override)
   - [NODE_ENV override](#node-env-override)
   - [More overrides :smiling_imp:](#more-overrides)
+
+## Motivation
+
+Why the hell another Node.js config package?
+
+That's a question we asked ourselves before starting this module,
+we wanted simple config management with the following features:
+
+- Simple to use
+- Small footprint
+- Homogeneous config file format
+- No global/specific/pre-configured module to load (eg. require the lib, configure it and then require this file instead directly using the package)
+- Human readable
+- Concise
+- Comments
+- Types
+- Overrides
+- Env variables support
+
+Several modules already exist, but none of them matched our requirements,
+some we're far too limited and others were, in our opinion, really bloated.
+
+We chose yaml because it automatically covered several requirements,
+it's concise compared to json, you can add comments, it supports types
+and it's really easy to read it. Yaml also offers other neat features
+such as [anchors](http://www.yaml.org/spec/1.2/spec.html#id2765878).
+
+**We only support yaml config files**, having a project with `json`, `xml`,
+`toml`, `ini`, `properties`,… just does not scale when working on big projects,
+everyone adding its favorite flavor.
+
+Then we used environment variables to load overrides or define some specific keys,
+it makes really easy to tweak your config depending on the environment
+you're running on without touching a single line of code or even a config file.
+
+We used this code across several projects (a small file comprised of ~100 loc at this time),
+and improved it when required.
+
+And here we are! It's now open source, and we hope it will help others
+building awesome things like it did for us.   
 
 ## Installation
 
@@ -28,6 +69,9 @@ npm install @ekino/config
 ```
 
 ## Usage
+
+As this module heavily relies on **environment variables**, you could read
+[this](https://en.wikipedia.org/wiki/Environment_variable) first if you're not comfortable with them.
 
 This module assumes all your configuration is defined in a single directory,
 located at the root of your current working directory (`process.cwd()`):
@@ -242,8 +286,8 @@ NODE_ENV=prod CONF_OVERRIDES=google,extra node test.js
 > 8082                   # from extra.yaml
 ```
 
-The overrides from files defined in `CONF_OVERRIDES` in the same order they are defined,
-so for `CONF_OVERRIDES=google,extra`, it will load `/conf/google.yaml`, then `extra.yaml`.
+The overrides from files defined in `CONF_OVERRIDES` are loaded in the same order they are defined,
+so for `CONF_OVERRIDES=google,extra`, it will load `/conf/google.yaml`, then `/conf/extra.yaml`.
 
 For the sake of mental health, if a file is defined twice, it will be ignored,
 if you take this example:
@@ -252,7 +296,7 @@ if you take this example:
 NODE_ENV=prod CONF_OVERRIDES=aws,prod node test.js
 ```
 
-the second `prod` defined inside `CONF_OVERRIDES` will be ignored as it has already been loaded
+the second `prod` defined inside `CONF_OVERRIDES` will be ignored as it has been already loaded
 because of `NODE_ENV=prod`. 
 
 :warning: The `env_mapping.yaml` will always take precedence over files overrides.
