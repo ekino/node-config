@@ -1,0 +1,4 @@
+version: 0.0.3
+api:
+  credentials:
+    key: override-b-api-key

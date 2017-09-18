@@ -39,8 +39,8 @@
         "prettier": "1.x.x"
     },
     "scripts": {
-        "fmt": "prettier --print-width 140 --tab-width=4 --single-quote --bracket-spacing --no-semi --color --write index.js test/*.js test/**/*.js",
-        "check-fmt": "prettier --print-width 140 --tab-width=4 --single-quote --bracket-spacing --no-semi --list-different index.js test/*.js test/**/*.js",
+        "fmt": "prettier --print-width 100 --tab-width=4 --single-quote --bracket-spacing --no-semi --color --write index.js test/*.js test/**/*.js",
+        "check-fmt": "prettier --print-width 100 --tab-width=4 --single-quote --bracket-spacing --no-semi --list-different index.js test/*.js test/**/*.js",
         "test": "ava",
         "test-cover": "nyc ava",
         "coverage": "nyc report --reporter=text-lcov | coveralls",
