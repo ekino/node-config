@@ -24,19 +24,19 @@
         "lightweight"
     ],
     "engines": {
-        "node": ">=6.0.0"
+        "node": ">=6"
     },
     "dependencies": {
-        "js-yaml": "3.x.x",
-        "lodash": "4.x.x"
+        "js-yaml": "3.x",
+        "lodash": "4.x"
     },
     "devDependencies": {
-        "ava": "0.19.1",
-        "coveralls": "2.x.x",
-        "eslint": "3.x.x",
-        "git-changelog": "1.x.x",
-        "nyc": "11.x.x",
-        "prettier": "1.x.x"
+        "ava": "1.0.0-rc.2",
+        "coveralls": "3.x",
+        "eslint": "5.x",
+        "git-changelog": "1.x",
+        "nyc": "13.x",
+        "prettier": "1.x"
     },
     "scripts": {
         "fmt": "prettier --print-width 100 --tab-width=4 --single-quote --bracket-spacing --no-semi --color --write index.js test/*.js test/**/*.js",
