@@ -54,7 +54,7 @@ We used this code across several projects (a small file comprised of ~100 loc at
 and improved it when required.
 
 And here we are! It's now open source, and we hope it will help others
-building awesome things like it did for us.   
+building awesome things like it did for us.
 
 ## Installation
 
@@ -75,14 +75,14 @@ npm install @ekino/config
 As this module heavily relies on **environment variables**, you could read
 [this](https://en.wikipedia.org/wiki/Environment_variable) first if you're not comfortable with them.
 
-This module assumes all your configuration is defined in a single directory,
-located at the root of your current working directory (`process.cwd()`):
+By default, this module assumes that configuration files are located in the root of your current working directory (`process.cwd()`).
+Yet, you can load files with relative path or absolute path anywhere else:
 
 ```
 ├─ conf/
    ├─ base.yaml        # the base configuration
    ├─ env_mapping.yaml # defines mapping between env vars and config keys
-   └─ dev.yaml         # Optional file loaded if NODE_ENV is `dev`
+   └─ dev.yaml         # Optional file loaded if CONF_FILES includes `dev`
 ```
 
 `base.yaml` is required, it defines the common basic configuration of your application.
@@ -139,7 +139,7 @@ And the following code:
 const config = require('@ekino/config')
 console.log(config.get('host'))
 console.log(config.get('external_api.key'))
-``` 
+```
 
 If we run this script, we'll have:
 
@@ -171,53 +171,17 @@ USE_SSL:
 ```
 
 For now we only support `number` and `boolean` types, if you think others could be useful,
-do not hesitate to contribute! 
+do not hesitate to contribute!
 
-### NODE_ENV override
+### CONF_FILES override
 
 If you've got a bunch of variations depending on the environment your're running your application on,
 it can be cumbersome to define tens of mappings inside the `env_mapping.yaml` file.
 
-This module gives you the ability to load overrides depending on the special `NODE_ENV`
-environment variable value, let's say we'got those config files:
-
-```yaml
-# /conf/dev.yaml
-host: dev.config.io
-```
-
-```yaml
-# /conf/prod.yaml
-host: prod.config.io
-```
-
-And the following code:
-
-```javascript
-// test.js
-const config = require('@ekino/config')
-console.log(config.get('host'))
-``` 
-
-If we run this script, we'll have:
-
-```sh
-NODE_ENV=dev node test.js
-> dev.config.io
-
-NODE_ENV=prod node test.js
-> prod.config.io
-```
-
-### More overrides
-
-As we've seen previously with [Environment variables override](#environment-variables-override)
-and [NODE_ENV override](#node-env-override), you can easily tweak your config without changing
-a single line of code, but if those features aren't sufficient to cover your requirements,
-you have another available level of override using `CONF_OVERRIDES`.
-
-> Please make sure you really need it before using it
-> as it makes more unclear what the final config will be.
+This module gives you the ability to load overrides depending on the `CONF_FILES`
+environment variable value. Files in `CONF_FILES` are loaded in the same order they are defined,
+so for `CONF_FILES=google,extra`, it will load `/conf/google.yaml`, then `/conf/extra.yaml`.
+File path can either be relative (to the CONF_DIR director) or absolute.
 
 Let's say we've got those config files:
 
@@ -257,7 +221,7 @@ const config = require('@ekino/config')
 console.log(config.get('service'))
 console.log(config.get('host'))
 console.log(config.get('port'))
-``` 
+```
 
 If we run this script, we'll have:
 
@@ -272,49 +236,35 @@ NODE_ENV=prod node test.js
 > prod.config.io  # from prod.yaml
 > 8081            # from prod.yaml
 
-NODE_ENV=prod CONF_OVERRIDES=aws node test.js
+NODE_ENV=prod CONF_FILES=aws node test.js
 > awesome             # from base.yaml
 > prod.aws.config.io  # from aws.yaml
 > 8081                # from prod.yaml
 
-NODE_ENV=prod CONF_OVERRIDES=google node test.js
+NODE_ENV=prod CONF_FILES=google node test.js
 > awesome                # from base.yaml
 > prod.google.config.io  # from google.yaml
 > 8081                   # from prod.yaml
 
-NODE_ENV=prod CONF_OVERRIDES=google,extra node test.js
+NODE_ENV=prod CONF_FILES=google,extra node test.js
 > awesome                # from base.yaml
 > prod.google.config.io  # from google.yaml
 > 8082                   # from extra.yaml
 ```
-
-The overrides from files defined in `CONF_OVERRIDES` are loaded in the same order they are defined,
-so for `CONF_OVERRIDES=google,extra`, it will load `/conf/google.yaml`, then `/conf/extra.yaml`.
-
-For the sake of mental health, if a file is defined twice, it will be ignored,
-if you take this example:
-
-```sh
-NODE_ENV=prod CONF_OVERRIDES=aws,prod node test.js
-```
-
-the second `prod` value defined inside `CONF_OVERRIDES` will be ignored as it has been already loaded
-because of `NODE_ENV=prod`. 
 
 :warning: The `env_mapping.yaml` will always take precedence over files overrides.
 
 ### Inheritance model
 
 ```
-base.yaml <— [<NODE_ENV>.yaml] <— [<CONF_OVERRIDES>.yaml] <— [env_mapping.yaml] 
+base.yaml <— [<CONF_FILES>.yaml] <— [env_mapping.yaml]
 ```
 
-*All files surrounded by `[]` are optional.* 
+*All files surrounded by `[]` are optional.*
 
-1. Load config from `base.yaml`
-2. If `NODE_ENV` is defined & `<NODE_ENV>.yaml` exists, load it
-3. If `CONF_OVERRIDES` is defined, load each corresponding file if it exists
-4. If `env_mapping.yaml` exists and some environment variables match, override with those values
+1. Load config from `<CONF_DIR>/base.yaml`
+3. If `CONF_FILES` is defined, load each corresponding file if it exists
+4. If `<CONF_DIR>/env_mapping.yaml` exists and some environment variables match, override with those values
 
 [npm-image]: https://img.shields.io/npm/v/@ekino/config.svg?style=flat-square
 [npm-url]: https://www.npmjs.com/package/@ekino/config

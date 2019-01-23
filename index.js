@@ -49,10 +49,14 @@ exports.dump = () => internals.cfg
  * @return {Object}
  */
 internals.read = path => {
-    const content = fs.readFileSync(path, { encoding: 'utf8' })
-    let result = yaml.safeLoad(content)
-
-    return result
+    path = internals.fillYamlExtension(path)
+    try {
+        const content = fs.readFileSync(path, { encoding: 'utf8' })
+        return yaml.safeLoad(content)
+    } catch (e) {
+        if (e.code !== 'ENOENT') throw e
+        throw new Error(`Config error: Couldn't find or read file ${path}.`)
+    }
 }
 
 /**
@@ -64,13 +68,37 @@ internals.read = path => {
  * @return {Object|null}
  */
 internals.readEventually = path => {
+    path = internals.fillYamlExtension(path)
     try {
-        const content = internals.read(path)
-        return content
+        const content = fs.readFileSync(path, { encoding: 'utf8' })
+        return yaml.safeLoad(content)
     } catch (e) {
-        if (!e || e.code !== 'ENOENT') throw e
-        return null
+        if (e.code !== 'ENOENT') throw e
     }
+
+    return null
+}
+
+/**
+ * Fill yaml files extension if not present. Try yaml first than yml.
+ * @param {string} filePath
+ * @return {string} - path with extension
+ */
+internals.fillYamlExtension = filePath => {
+    const extension = path.extname(filePath)
+    let result = filePath
+
+    // Try with yaml extension first and if not yml
+    if (_.isEmpty(extension)) {
+        try {
+            result = `${filePath}.yaml`
+            fs.accessSync(result, fs.constants.R_OK)
+        } catch (e) {
+            result = `${filePath}.yml`
+        }
+    }
+
+    return result
 }
 
 /**
@@ -144,36 +172,32 @@ internals.merge = _.partialRight(_.mergeWith, internals.customizer)
  * 4. load env_mapping.yaml if it exists and search for overrides
  */
 internals.load = () => {
-    const confPath = process.env.NODE_CONFIG_DIR
-        ? `${process.env.NODE_CONFIG_DIR}`
+    const confPath = process.env.CONF_DIR
+        ? `${process.env.CONF_DIR}`
         : path.join(process.cwd(), 'conf')
 
     // load base config (required)
-    const baseConfig = internals.read(path.join(confPath, 'base.yaml'))
+    const baseConfig = internals.read(path.join(confPath, 'base'))
     internals.cfg = Object.assign({}, baseConfig)
 
     // apply file overrides (optional)
-    let overrideFiles = []
-    if (process.env.NODE_ENV) overrideFiles.push(process.env.NODE_ENV)
-    if (process.env.CONF_OVERRIDES) {
-        overrideFiles = overrideFiles.concat(
-            process.env.CONF_OVERRIDES.split(',').filter(
+    let confFiles = []
+    if (process.env.CONF_FILES) {
+        confFiles = process.env.CONF_FILES.split(',')
+            .map(filename => filename.trim())
+            .filter(
                 // remove garbage and prevent dupes
-                override =>
-                    !_.isEmpty(override) && override !== 'base' && !overrideFiles.includes(override)
+                filename => !_.isEmpty(filename) && filename !== 'base'
             )
-        )
     }
 
-    overrideFiles.forEach(overrideFile => {
-        const overridePath = path.join(confPath, `${overrideFile}.yaml`)
-        const override = internals.readEventually(overridePath)
-
-        if (override !== null) internals.merge(internals.cfg, override)
+    confFiles.forEach(confFile => {
+        const fileContent = internals.read(path.join(confPath, confFile))
+        internals.merge(internals.cfg, fileContent)
     })
 
     // apply environment overrides (optional)
-    const envOverridesConfig = internals.readEventually(path.join(confPath, 'env_mapping.yaml'))
+    const envOverridesConfig = internals.readEventually(path.join(confPath, 'env_mapping'))
     if (envOverridesConfig !== null) {
         const envOverrides = internals.getEnvOverrides(envOverridesConfig)
         internals.merge(internals.cfg, envOverrides)
