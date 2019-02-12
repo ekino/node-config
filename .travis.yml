@@ -1,15 +1,16 @@
 language: node_js
 node_js:
-  - '6'
-  - '8'
-  - '10'
-  - '11'
+- '6'
+- '8'
+- '10'
+- '11'
 script:
-  - yarn run lint
-  - yarn run check-fmt
-  - yarn run tsc
-  - yarn run test-cover
+- yarn run lint
+- yarn run check-fmt
+- yarn run tsc
+- yarn run test-cover
 after_success:
-  - yarn run coverage
+- yarn run coverage
 notifications:
-  flowdock: $FLOWDOCK_API_TOKEN
+  slack:
+    secure: fpyqTPLn+68Q7nGXbBUsHJXKBVuCkb917NWFLqg8jNprC9JI9JoBmwcTGouRDsXUtpHRwMci5Tur4vdTF2axA0j7L0CnRaxiar32JXs0GsRRLgYM8PjbpanNVeHoCMEmR1CaGTIvgCZtb8SE95pMwf1C3sxoFqEYCT0vgwKfx7EuprtJ8yu7VXiiO8gejlRWFK+0+fTcYCxJn+lSur1d4ijQMEdgV49Tu4/BHxSEf0zmnGtHJbfQyyvaPBbbd49606vu3CNAgYXniNueDy2xjc0V2SWMYQRZGaz9bUeo5P5YKwJ7pZFgNXV9hCnub7eDBLhXv8AsScy/ayLGUYvm9hav3D3vyM+sxuf3v1bLtGH4hGJyeeTyCwiDtwsmrke1tXn/8wgFODyzCYbecmZcBzQbViITHzXj0/wb7UR7HmDOdD7J3qTen7QCerD8kdGEuF0DoKVvPIjOwxeJW9m5YeSlv3x8v1pE/xVJn5M6A9RQPG0Lqc/P5iolRUIE8+mBeg9JjxBRLP+GdxLmr0k9p2dd6ASgrW9Z6yIhaEftynIWAtkwJ42LgEJ+UfN2nU9p/H5wD8wGPeXJptIi+xyGrpQRZLOXjbHB1ZD/jhd+2O5ZylorDC+b2VluA04DRPpg8miOpVZbutqoCA217w9VC/x++oZOWWWQ0TRSV3ft34k=
