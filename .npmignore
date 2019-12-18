@@ -20,6 +20,9 @@ node_modules
 # tests
 /test
 
+# example confs
+/conf
+
 # IDE
 .idea
 
@@ -31,7 +34,7 @@ Makefile
 .prettierrc
 .commitlintrc.yml
 .editorconfig
-.hsukyrc
+.huskyrc
 .travis.yml
 tsconfig.json
 ava.config.js
