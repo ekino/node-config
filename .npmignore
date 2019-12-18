@@ -29,3 +29,9 @@ Makefile
 .gitignore
 .changelogrc
 .prettierrc
+.commitlintrc.yml
+.editorconfig
+.hsukyrc
+.travis.yml
+tsconfig.json
+ava.config.js
