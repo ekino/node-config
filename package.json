@@ -25,18 +25,21 @@
         "lightweight"
     ],
     "engines": {
-        "node": ">=6"
+        "node": ">=8.9.4"
     },
     "dependencies": {
         "js-yaml": "3.x",
         "lodash": "4.x"
     },
     "devDependencies": {
-        "ava": "1.1.x",
+        "@commitlint/cli": "8.x",
+        "@commitlint/config-conventional": "8.x",
+        "ava": "2.x",
+        "conventional-changelog-cli": "2.x",
         "coveralls": "3.x",
-        "eslint": "5.x",
-        "git-changelog": "1.x",
-        "nyc": "13.x",
+        "eslint": "6.x",
+        "husky": "3.x",
+        "nyc": "14.x",
         "prettier": "1.x",
         "typescript": "3.x"
     },
@@ -47,7 +50,7 @@
         "test": "ava",
         "test-cover": "nyc ava",
         "coverage": "nyc report --reporter=text-lcov | coveralls",
-        "changelog": "git-changelog -t false -n v${npm_package_version}",
+        "changelog": "conventional-changelog -p conventionalcommits -i CHANGELOG.md -s -r 0",
         "version": "echo ${npm_package_version}",
         "lint": "eslint ."
     }
