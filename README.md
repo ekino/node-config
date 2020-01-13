@@ -230,22 +230,22 @@ node test.js
 > base.config.io  # from base.yaml
 > 8080            # from base.yaml
 
-NODE_ENV=prod node test.js
+CONF_FILES=prod node test.js
 > awesome         # from base.yaml
 > prod.config.io  # from prod.yaml
 > 8081            # from prod.yaml
 
-NODE_ENV=prod CONF_FILES=aws node test.js
+CONF_FILES=prod,aws node test.js
 > awesome             # from base.yaml
 > prod.aws.config.io  # from aws.yaml
 > 8081                # from prod.yaml
 
-NODE_ENV=prod CONF_FILES=google node test.js
+CONF_FILES=prod,google node test.js
 > awesome                # from base.yaml
 > prod.google.config.io  # from google.yaml
 > 8081                   # from prod.yaml
 
-NODE_ENV=prod CONF_FILES=google,extra node test.js
+CONF_FILES=prod,google,extra node test.js
 > awesome                # from base.yaml
 > prod.google.config.io  # from google.yaml
 > 8082                   # from extra.yaml
