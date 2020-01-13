@@ -41,3 +41,11 @@ jspm_packages
 
 # OSX
 .DS_Store
+
+# BUILDS
+# main build
+/build
+
+# IDE configurations
+.idea
+.vscode

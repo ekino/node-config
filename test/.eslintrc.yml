@@ -1,0 +1,19 @@
+root: true
+parserOptions:
+    ecmaVersion: 2018
+    sourceType: script
+env:
+    node: true
+    es6: true
+    mocha: true
+plugins:
+    - 'you-dont-need-lodash-underscore'
+extends:
+    - 'eslint:recommended'
+    - 'plugin:you-dont-need-lodash-underscore/all-warn'
+    - 'plugin:prettier/recommended'
+rules:
+    'no-duplicate-imports': 'error'
+    'no-unneeded-ternary': 'error'
+    'prefer-object-spread': 'error'
+    'no-unused-vars': ['error', { ignoreRestSiblings: true, args: 'none' }]

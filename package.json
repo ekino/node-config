@@ -3,8 +3,8 @@
     "version": "0.5.0",
     "description": "lightweight configuration module powered by yaml",
     "homepage": "https://github.com/ekino/node-config",
-    "main": "index.js",
-    "types": "index.d.ts",
+    "main": "build/index.js",
+    "types": "build/index.d.ts",
     "repository": {
         "type": "git",
         "url": "https://github.com/ekino/node-config.git"
@@ -34,24 +34,31 @@
     "devDependencies": {
         "@commitlint/cli": "8.x",
         "@commitlint/config-conventional": "8.x",
+        "@types/js-yaml": "3.x",
+        "@types/lodash": "4.x",
+        "@typescript-eslint/eslint-plugin": "2.x",
+        "@typescript-eslint/parser": "2.x",
         "ava": "2.x",
         "conventional-changelog-cli": "2.x",
         "coveralls": "3.x",
         "eslint": "6.x",
+        "eslint-config-prettier": "6.x",
+        "eslint-plugin-prettier": "3.x",
+        "eslint-plugin-you-dont-need-lodash-underscore": "6.x",
         "husky": "3.x",
+        "jest": "^24.9.0",
         "nyc": "14.x",
         "prettier": "1.x",
         "typescript": "3.x"
     },
     "scripts": {
-        "fmt": "prettier --color --write index.js test/*.js test/**/*.{js,ts}",
-        "check-fmt": "prettier --list-different index.js test/*.js test/**/*.{js,ts}",
-        "tsc": "tsc",
-        "test": "ava",
-        "test-cover": "nyc ava",
+        "tsc": "tsc -d",
+        "test": "tsc && ava",
+        "test-cover": "nyc tsc && ava",
         "coverage": "nyc report --reporter=text-lcov | coveralls",
         "changelog": "conventional-changelog -p conventionalcommits -i CHANGELOG.md -s -r 0",
         "version": "echo ${npm_package_version}",
-        "lint": "eslint ."
+        "lint": "eslint ./*.ts ./test/*.js --fix",
+        "lint-check": "eslint ./*.ts ./test/*.js"
     }
 }

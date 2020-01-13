@@ -37,4 +37,4 @@ Makefile
 .huskyrc
 .travis.yml
 tsconfig.json
-ava.config.js
+ava.config.cjs

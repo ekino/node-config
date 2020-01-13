@@ -11,8 +11,7 @@ A lightweight/opinionated/versatile configuration module powered by yaml.
 - [Installation](#installation)
 - [Usage](#usage)
   - [Environment variables override](#environment-variables-override)
-  - [NODE_ENV override](#node_env-override)
-  - [More overrides](#more-overrides) :smiling_imp:
+  - [CONF_FILES override](#conf_files-override)
   - [Inheritance model](#inheritance-model)
 
 ## Motivation
