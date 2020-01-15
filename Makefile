@@ -35,12 +35,8 @@ help: ##prints help
 
 ############## RELEASE ##############
 changelog: ##@release create changelog
-	@echo "${YELLOW}generating changelog from v${FROM} to v${RELEASE_VERSION}${RESET}"
-    ifeq ($(FROM), false)
-		@yarn run changelog -- -t false
-    else
-		@yarn run changelog -- -t "v${FROM}"
-    endif
+	@echo "${YELLOW}generating changelog for v${RELEASE_VERSION}${RESET}"
+	@yarn run changelog
 
 update-package-version: ##@release updates version in package.json
 	@echo "${YELLOW}updating package.json version to ${RELEASE_VERSION}${RESET}"
@@ -50,7 +46,7 @@ release: ##@release generates a new release
 	@echo "${YELLOW}building release ${RELEASE_VERSION} from ${FROM_VERSION}${RESET}"
 	@-git stash
 	@make update-package-version
-	@make changelog FROM=${FROM_VERSION}
+	@make changelog
 	@git add package.json CHANGELOG.md
 	@git commit -m "chore(v${RELEASE_VERSION}): bump version to ${RELEASE_VERSION}"
 	@git tag -a "v${RELEASE_VERSION}" -m "version ${RELEASE_VERSION}"
