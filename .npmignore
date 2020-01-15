@@ -8,9 +8,6 @@ npm-debug.log*
 # Coverage directory used by tools like istanbul
 coverage
 
-# nyc test coverage
-.nyc_output
-
 # Dependency directories
 node_modules
 
@@ -35,6 +32,5 @@ Makefile
 .commitlintrc.yml
 .editorconfig
 .huskyrc
-.travis.yml
 tsconfig.json
-ava.config.js
+jest.config.js

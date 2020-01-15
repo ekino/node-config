@@ -5,8 +5,7 @@ node_js:
 - '12'
 - '13'
 script:
-- yarn run lint
-- yarn run check-fmt
+- yarn run lint-check
 - yarn run tsc
 - yarn run test-cover
 after_success:

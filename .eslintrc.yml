@@ -1,9 +1,28 @@
+parser: '@typescript-eslint/parser'
 parserOptions:
-  ecmaVersion: 2017
-  sourceType: script
+    project: './tsconfig.json'
+    sourceType: module
 env:
-  node: true
-  es6: true
-extends: eslint:recommended
+    node: true
+    es6: true
+    mocha: true
+plugins:
+    - 'you-dont-need-lodash-underscore'
+extends:
+    - 'eslint:recommended'
+    - 'plugin:@typescript-eslint/eslint-recommended'
+    - 'plugin:@typescript-eslint/recommended'
+    - 'plugin:@typescript-eslint/recommended-requiring-type-checking'
+    - 'prettier/@typescript-eslint'
+    - 'plugin:you-dont-need-lodash-underscore/all-warn'
+    - 'plugin:prettier/recommended'
 rules:
-  no-unused-vars: off
+    '@typescript-eslint/no-use-before-define': 'off'
+    '@typescript-eslint/camelcase': 'warn'
+    'require-await': 'off'
+    '@typescript-eslint/interface-name-prefix': 'warn'
+    'no-duplicate-imports': 'error'
+    'no-unneeded-ternary': 'error'
+    'prefer-object-spread': 'error'
+    'no-unused-vars': ['off']
+    '@typescript-eslint/no-unused-vars': ['error', { ignoreRestSiblings: true, args: 'none' }]
