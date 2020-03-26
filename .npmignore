@@ -34,3 +34,4 @@ Makefile
 .huskyrc
 tsconfig.json
 jest.config.js
+/build/tsconfig.tsbuildinfo
