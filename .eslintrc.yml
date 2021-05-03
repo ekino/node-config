@@ -5,7 +5,7 @@ parserOptions:
 env:
     node: true
     es6: true
-    mocha: true
+    jest: true
 plugins:
     - 'you-dont-need-lodash-underscore'
 extends:
@@ -13,16 +13,45 @@ extends:
     - 'plugin:@typescript-eslint/eslint-recommended'
     - 'plugin:@typescript-eslint/recommended'
     - 'plugin:@typescript-eslint/recommended-requiring-type-checking'
-    - 'prettier/@typescript-eslint'
     - 'plugin:you-dont-need-lodash-underscore/all-warn'
     - 'plugin:prettier/recommended'
 rules:
     '@typescript-eslint/no-use-before-define': 'off'
-    '@typescript-eslint/camelcase': 'warn'
     'require-await': 'off'
-    '@typescript-eslint/interface-name-prefix': 'warn'
     'no-duplicate-imports': 'error'
     'no-unneeded-ternary': 'error'
     'prefer-object-spread': 'error'
     'no-unused-vars': ['off']
     '@typescript-eslint/no-unused-vars': ['error', { ignoreRestSiblings: true, args: 'none' }]
+    '@typescript-eslint/naming-convention': [
+      'warn',
+      {
+        selector: 'default',
+        format: ['camelCase'],
+        leadingUnderscore: 'forbid',
+        trailingUnderscore: 'forbid'
+      },
+      {
+        selector: 'variable',
+        format: ['camelCase', 'UPPER_CASE', 'PascalCase']
+      },
+      {
+        selector: 'property',
+        format: ['camelCase', 'PascalCase']
+      },
+      {
+        selector: 'parameter',
+        format: ['camelCase'],
+        leadingUnderscore: 'allow'
+      },
+      {
+        selector: 'typeLike',
+        format: ['PascalCase']
+      },
+      {
+        selector: 'enumMember',
+        format: ['PascalCase']
+      }
+    ]
+    '@typescript-eslint/no-unsafe-call': 'warn'
+    '@typescript-eslint/no-unsafe-member-access': 'off'

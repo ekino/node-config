@@ -1,0 +1,51 @@
+name: release
+
+on:
+  push:
+    tags:
+      - 'v**'
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v2
+        with:
+          node-version: 12.x
+          registry-url: 'https://registry.npmjs.org'
+      - name: Read version from the tag
+        id: get_version
+        run: echo ::set-output name=VERSION::${GITHUB_REF#refs/tags/v}
+      - name: Compile and package library
+        run: |
+          yarn install
+          yarn compile
+          zip ekino-node-config-$VERSION.zip build package.json README.md CHANGELOG.md
+          unzip -t ekino-node-config-$VERSION.zip
+        env:
+          VERSION: ${{ steps.get_version.outputs.VERSION }}
+      - name: Create a release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v${{ steps.get_version.outputs.VERSION }}
+          release_name: "V${{ steps.get_version.outputs.VERSION }}"
+      - name: Upload library code
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: "./ekino-node-config-${{ steps.get_version.outputs.VERSION }}.zip"
+          asset_name: "ekino-node-config-${{ steps.get_version.outputs.VERSION }}"
+          asset_content_type: application/zip
+      - name: Publish to NPM
+        run: npm publish --access public
+        env:
+          VERSION: ${{ steps.get_version.outputs.VERSION }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

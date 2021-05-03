@@ -3,13 +3,24 @@ import yaml from 'js-yaml'
 import fs from 'fs'
 import path from 'path'
 
-const internals: any = { cfg: {} }
+type Internals = {
+    cfg: Record<string, unknown>
+    fillYamlExtension?(filePath: string): string
+    // eslint-disable-next-line @typescript-eslint/ban-types
+    read?(keyPath: string): Record<string, unknown> | undefined | null | string | object | number
+    readEventually?(keyPath: string): unknown | null
+    cast?(type: string, value: string | number): string | number | boolean
+    getEnvOverrides?(mappings: unknown): unknown
+    merge?<TObject, TSource>(object: TObject, source: TSource): TObject & TSource
+}
+
+const internals: Internals = { cfg: {} }
 
 /**
  * Get a value from the configuration. Supports dot notation (eg: "key.subkey.subsubkey")...
  *
  */
-export const get = <T>(key: string): T => _.get(internals.cfg, key)
+export const get = <T>(key: string): T | unknown => _.get(internals.cfg, key)
 
 /**
  * Set a value in the configuration. Supports dot notation (eg: "key.subkey.subsubkey")
@@ -28,7 +39,7 @@ export const set = <T>(key: string, value: T): void => {
 /**
  * Dumps the whole config object.
  */
-export const dump = <T>(): T => internals.cfg
+export const dump = (): unknown => internals.cfg
 
 /**
  * Loads config:
@@ -43,30 +54,32 @@ export const load = (): void => {
         : path.join(process.cwd(), 'conf')
 
     // load base config (required)
-    const baseConfig = internals.read(path.join(confPath, 'base'))
-    internals.cfg = { ...baseConfig }
+    const baseConfig = internals.read?.(path.join(confPath, 'base'))
+    if (baseConfig && typeof baseConfig === 'object') {
+        internals.cfg = { ...baseConfig }
+    }
 
     // apply file overrides (optional)
     let confFiles: string[] = []
     if (process.env.CONF_FILES) {
         confFiles = process.env.CONF_FILES.split(',')
-            .map(filename => filename.trim())
+            .map((filename) => filename.trim())
             .filter(
                 // remove garbage and prevent dupes
-                filename => !_.isEmpty(filename) && filename !== 'base'
+                (filename) => !_.isEmpty(filename) && filename !== 'base'
             )
     }
 
-    confFiles.forEach(confFile => {
-        const fileContent = internals.read(path.join(confPath, confFile))
-        internals.merge(internals.cfg, fileContent)
+    confFiles.forEach((confFile) => {
+        const fileContent = internals.read?.(path.join(confPath, confFile))
+        internals.merge?.(internals.cfg, fileContent)
     })
 
     // apply environment overrides (optional)
-    const envOverridesConfig = internals.readEventually(path.join(confPath, 'env_mapping'))
+    const envOverridesConfig = internals.readEventually?.(path.join(confPath, 'env_mapping'))
     if (envOverridesConfig !== null) {
-        const envOverrides = internals.getEnvOverrides(envOverridesConfig)
-        internals.merge(internals.cfg, envOverrides)
+        const envOverrides = internals.getEnvOverrides?.(envOverridesConfig)
+        internals.merge?.(internals.cfg, envOverrides)
     }
 }
 
@@ -78,14 +91,17 @@ export const load = (): void => {
  * WARNING: This use a sync function to read file
  *
  */
-internals.read = (path: string): any => {
-    path = internals.fillYamlExtension(path)
+internals.read = (
+    keyPath: string
+    // eslint-disable-next-line @typescript-eslint/ban-types
+): Record<string, unknown> | undefined | null | string | object | number => {
+    const cleanedPath = internals.fillYamlExtension?.(keyPath) ?? keyPath
     try {
-        const content = fs.readFileSync(path, { encoding: 'utf8' })
-        return yaml.safeLoad(content)
+        const content = fs.readFileSync(cleanedPath, { encoding: 'utf8' })
+        return yaml.load(content)
     } catch (e) {
         if (e.code !== 'ENOENT') throw e
-        throw new Error(`Config error: Couldn't find or read file ${path}.`)
+        throw new Error(`Config error: Couldn't find or read file ${cleanedPath}.`)
     }
 }
 
@@ -95,11 +111,12 @@ internals.read = (path: string): any => {
  * @see internals.read
  *
  */
-internals.readEventually = (path: string): any | null => {
-    path = internals.fillYamlExtension(path)
+internals.readEventually = (keyPath: string): unknown | null => {
+    const cleanedPath = internals.fillYamlExtension?.(keyPath) ?? keyPath
+
     try {
-        const content = fs.readFileSync(path, { encoding: 'utf8' })
-        return yaml.safeLoad(content)
+        const content = fs.readFileSync(cleanedPath, { encoding: 'utf8' })
+        return yaml.load(content)
     } catch (e) {
         if (e.code !== 'ENOENT') throw e
     }
@@ -108,7 +125,7 @@ internals.readEventually = (path: string): any | null => {
 }
 
 /**
- * Fill yaml files extension if not present. Try yaml first than yml.
+ * Fill yaml files extension if not present. Try yaml first then yml.
  */
 internals.fillYamlExtension = (filePath: string): string => {
     const extension = path.extname(filePath)
@@ -152,19 +169,26 @@ internals.cast = (type: string, value: string | number): string | number | boole
 /**
  * Read env variables override file and set config from env vars.
  */
-internals.getEnvOverrides = (mappings: any): any => {
+internals.getEnvOverrides = (
+    mappings: Record<string, { key: string; type: string } | string>
+): unknown => {
     const overriden = {}
 
     _.forOwn(mappings, (mapping, key) => {
-        if (process.env[key] === undefined) return true
+        const envVal = process.env[key]
+        if (envVal === undefined) return true
 
-        let value = process.env[key]
-        let mappedKey = mapping
+        let value: string | number | boolean
+        let mappedKey: string
 
-        if (mapping.key) {
+        if (isAdvancedConfig(mapping)) {
             mappedKey = mapping.key
-            value = internals.cast(mapping.type, value)
+            value = internals.cast?.(mapping.type, envVal) ?? envVal
+        } else {
+            mappedKey = mapping
+            value = envVal
         }
+
         _.set(overriden, mappedKey, value)
     })
 
@@ -178,5 +202,11 @@ internals.getEnvOverrides = (mappings: any): any => {
 
 internals.merge = <TObject, TSource>(object: TObject, source: TSource): TObject & TSource =>
     _.mergeWith(object, source, (object, source) => (Array.isArray(source) ? source : undefined))
+
+const isAdvancedConfig = (
+    conf: { key: string; type: string } | string
+): conf is { key: string; type: string } => {
+    return (conf as { key: string; type: string }).key !== undefined
+}
 
 load()

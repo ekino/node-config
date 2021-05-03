@@ -49,3 +49,11 @@ jspm_packages
 # IDE configurations
 .idea
 .vscode
+
+
+.yarn/*
+!.yarn/releases
+!.yarn/plugins
+!.yarn/sdks
+!.yarn/versions
+.pnp.*
