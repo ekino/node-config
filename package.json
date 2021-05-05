@@ -25,39 +25,39 @@
         "lightweight"
     ],
     "engines": {
-        "node": ">=8.9.4"
+        "node": ">=12"
     },
     "dependencies": {
-        "js-yaml": "3.x",
+        "js-yaml": "4.x",
         "lodash": "4.x"
     },
     "devDependencies": {
-        "@commitlint/cli": "8.x",
-        "@commitlint/config-conventional": "8.x",
-        "@types/jest": "24.x",
-        "@types/js-yaml": "3.x",
+        "@commitlint/cli": "12.x",
+        "@commitlint/config-conventional": "12.x",
+        "@types/jest": "26.x",
+        "@types/js-yaml": "4.x",
         "@types/lodash": "4.x",
-        "@typescript-eslint/eslint-plugin": "2.x",
-        "@typescript-eslint/parser": "2.x",
+        "@types/node": "14.x",
+        "@typescript-eslint/eslint-plugin": "4.x",
+        "@typescript-eslint/parser": "4.x",
+        "@yarnpkg/pnpify": "^2.1.0",
         "conventional-changelog-cli": "2.x",
-        "coveralls": "3.x",
-        "eslint": "6.x",
-        "eslint-config-prettier": "6.x",
+        "eslint": "7.x",
+        "eslint-config-prettier": "8.x",
         "eslint-plugin-prettier": "3.x",
         "eslint-plugin-you-dont-need-lodash-underscore": "6.x",
-        "husky": "3.x",
-        "jest": "24.x",
-        "nyc": "14.x",
-        "prettier": "1.x",
-        "ts-jest": "^24.3.0",
-        "typescript": "3.x"
+        "husky": "4.x",
+        "jest": "26.x",
+        "nyc": "15.x",
+        "prettier": "2.x",
+        "ts-jest": "26.x",
+        "typescript": "3.9.x"
     },
     "scripts": {
         "tsc": "tsc -d",
         "test": "jest",
         "test-cover": "jest --coverage",
         "coverage": "jest --coverage --coverageReporters=text-lcov | coveralls",
-        "changelog": "conventional-changelog -p conventionalcommits -i CHANGELOG.md -s -r 0",
         "version": "echo ${npm_package_version}",
         "lint": "eslint ./*.ts ./test/*.js --fix",
         "lint-check": "eslint ./*.ts ./test/*.js"

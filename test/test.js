@@ -1,5 +1,4 @@
 const config = require('../index')
-const expect = require('expect')
 
 const old_env = { ...process.env }
 
@@ -32,10 +31,10 @@ test('I can override config values with env values in the following order: base,
         api: {
             credentials: {
                 id: 'base-api-id',
-                key: 'base-api-key'
+                key: 'base-api-key',
             },
-            retries: 6
-        }
+            retries: 6,
+        },
     })
 })
 
@@ -51,10 +50,10 @@ test('I can override config values with config file defined through CONF_FILES',
         api: {
             credentials: {
                 id: 'base-api-id',
-                key: 'override-a-api-key'
+                key: 'override-a-api-key',
             },
-            retries: 3
-        }
+            retries: 3,
+        },
     })
 })
 
@@ -70,10 +69,10 @@ test('I can override config values with multiple config files defined through CO
         api: {
             credentials: {
                 id: 'base-api-id',
-                key: 'override-b-api-key'
+                key: 'override-b-api-key',
             },
-            retries: 3
-        }
+            retries: 3,
+        },
     })
 })
 
@@ -82,7 +81,7 @@ test('Environment variables mapped through env_mapping should take precedence ov
         ...process.env,
         CONF_FILES: 'override_a,override_b',
         VERSION: '0.0.4',
-        API_RETRIES: '6'
+        API_RETRIES: '6',
     }
     config.load()
     const content = config.dump()
@@ -94,10 +93,10 @@ test('Environment variables mapped through env_mapping should take precedence ov
         api: {
             credentials: {
                 id: 'base-api-id',
-                key: 'override-b-api-key'
+                key: 'override-b-api-key',
             },
-            retries: 6
-        }
+            retries: 6,
+        },
     })
 })
 
@@ -108,7 +107,7 @@ test('I can cast env values overrides', () => {
         NAME: 'app',
         ID: '12',
         USE_SSL: 'false',
-        USE_MOCKS: 1
+        USE_MOCKS: 1,
     }
     config.load()
     const content = config.dump()
@@ -147,10 +146,10 @@ test("It reads yml file if file has no extension and .yaml doesn't exists", () =
         api: {
             credentials: {
                 id: 'base-api-id',
-                key: 'override-c'
+                key: 'override-c',
             },
-            retries: 3
-        }
+            retries: 3,
+        },
     })
 })
 
@@ -166,10 +165,10 @@ test('It reads yaml file if file has no extension and yaml file exists (even if 
         api: {
             credentials: {
                 id: 'base-api-id',
-                key: 'override-d-yaml'
+                key: 'override-d-yaml',
             },
-            retries: 3
-        }
+            retries: 3,
+        },
     })
 })
 
@@ -185,10 +184,10 @@ test('It reads yml file if conf file has .yml extension even if .yaml file exist
         api: {
             credentials: {
                 id: 'base-api-id',
-                key: 'override-d-yml'
+                key: 'override-d-yml',
             },
-            retries: 3
-        }
+            retries: 3,
+        },
     })
 })
 
@@ -204,10 +203,10 @@ test('CONF_FILES should support space between configuration files names', () => 
         api: {
             credentials: {
                 id: 'base-api-id',
-                key: 'override-d-yml'
+                key: 'override-d-yml',
             },
-            retries: 3
-        }
+            retries: 3,
+        },
     })
 })
 
@@ -219,7 +218,7 @@ test('Not existing conf files should produce an error', () => {
     }).toThrowError({
         instanceOf: Error,
         name: 'Error',
-        message: `Config error: Couldn't find or read file ${process.cwd()}/conf/override_empty.yml.`
+        message: `Config error: Couldn't find or read file ${process.cwd()}/conf/override_empty.yml.`,
     })
 })
 
@@ -231,7 +230,7 @@ test('It throws an error when number cast on env value fails', () => {
     }).toThrowError({
         instanceOf: Error,
         name: 'Error',
-        message: 'Config error: expected a number got NotANumber'
+        message: 'Config error: expected a number got NotANumber',
     })
 })
 
@@ -242,7 +241,7 @@ test('It throws an error when boolean string cast on env value fails', () => {
     }).toThrowError({
         instanceOf: Error,
         name: 'Error',
-        message: 'Config error: expected a boolean got NotABoolean'
+        message: 'Config error: expected a boolean got NotABoolean',
     })
 })
 
@@ -253,7 +252,7 @@ test('It throws an error when boolean number cast on env value fails', () => {
     }).toThrowError({
         instanceOf: Error,
         name: 'Error',
-        message: 'Config error: expected a boolean got 42'
+        message: 'Config error: expected a boolean got 42',
     })
 })
 
@@ -261,16 +260,21 @@ test('It throws an error when env_mapping file is not yaml valid', () => {
     process.env = {
         ...process.env,
         CONF_DIR: 'test/conf/malformatted_env_mapping_file',
-        PORT: '8081'
+        PORT: '8081',
     }
     expect(() => {
         config.load()
     }).toThrowError({
         instanceOf: Error,
         name: 'YAMLException',
-        message: `can not read an implicit mapping pair; a colon is missed at line 4, column 16:
-    {error format }
-                   ^`
+        message: `can not read an implicit mapping pair; a colon is missed (4:16)
+
+ 1 | PORT:
+ 2 |   key: port
+ 3 |   type: number
+ 4 | {error format }
+--------------------^
+ 5 | error format`,
     })
 })
 
@@ -281,9 +285,13 @@ test('It throws an error when base file is not yaml valid', () => {
     }).toThrowError({
         instanceOf: Error,
         name: 'YAMLException',
-        message: `can not read an implicit mapping pair; a colon is missed at line 5, column 15:
-    {error format}
-                  ^`
+        message: `can not read an implicit mapping pair; a colon is missed (5:15)
+
+ 2 | version: 0.0.1
+ 3 | name: throw-app
+ 4 | uuid: 01A
+ 5 | {error format}
+-------------------^`,
     })
 })
 
@@ -294,9 +302,12 @@ test('It throws an error when env file is not yaml valid', () => {
     }).toThrowError({
         instanceOf: Error,
         name: 'YAMLException',
-        message: `can not read an implicit mapping pair; a colon is missed at line 3, column 16:
-    {error format }
-                   ^`
+        message: `can not read an implicit mapping pair; a colon is missed (3:16)
+
+ 1 | port: 80
+ 2 | version: 0.0.1
+ 3 | {error format }
+--------------------^`,
     })
 })
 
@@ -307,7 +318,7 @@ test('It throws an error when no base file', () => {
     }).toThrowError({
         instanceOf: Error,
         name: 'Error',
-        message: "Config error: Couldn't find or read file test/conf/no_base_file/base.yml."
+        message: "Config error: Couldn't find or read file test/conf/no_base_file/base.yml.",
     })
 })
 
@@ -339,7 +350,7 @@ test('I can delete a key', () => {
 test('I can delete a key with dot notation', () => {
     expect(config.get('test')).toEqual({
         subtest: 'value',
-        subtestarray: [{ subsubtest: 'value' }]
+        subtestarray: [{ subsubtest: 'value' }],
     })
     expect(config.get('test.subtest')).toEqual('value')
     config.set('test.subtest')

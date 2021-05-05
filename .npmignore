@@ -24,7 +24,6 @@ node_modules
 .idea
 
 # misc
-Makefile
 .eslintrc.yml
 .gitignore
 .changelogrc
@@ -35,3 +34,6 @@ Makefile
 tsconfig.json
 jest.config.js
 /build/tsconfig.tsbuildinfo
+/.yarn
+.yarnrc.yml
+/.github
