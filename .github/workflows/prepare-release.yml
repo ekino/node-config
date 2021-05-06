@@ -36,4 +36,4 @@ jobs:
           commit-message: "chore(release): bump version to ${{ github.event.inputs.version }}"
           labels: release
           delete-branch: true
-          base: main
+          base: master
