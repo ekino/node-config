@@ -33,7 +33,7 @@ jobs:
           title: "[Release] V${{ github.event.inputs.version }}"
           body: "Release ${{ github.event.inputs.version }}"
           committer: "Node-config Bot <noreply@github.com>"
-          commit-message: "chore(release): bump version to ${VERSION}"
+          commit-message: "chore(release): bump version to ${{ github.event.inputs.version }}"
           labels: release
           delete-branch: true
           base: main
