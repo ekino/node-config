@@ -1,6 +1,6 @@
 {
     "name": "@ekino/config",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "description": "lightweight configuration module powered by yaml",
     "homepage": "https://github.com/ekino/node-config",
     "main": "build/index.js",
