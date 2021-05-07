@@ -1,3 +1,18 @@
+## 1.0.0 (2021-05-07)
+
+* chore(actions): add codeQL actions ([3d9352c](https://github.com/ekino/node-config/commit/3d9352c))
+* chore(actions): change pre release token to launch action ([b0485e1](https://github.com/ekino/node-config/commit/b0485e1))
+* chore(deps): bump acorn from 5.7.3 to 5.7.4 ([0fd3735](https://github.com/ekino/node-config/commit/0fd3735))
+* chore(deps): bump lodash from 4.17.15 to 4.17.19 ([0db8550](https://github.com/ekino/node-config/commit/0db8550))
+* chore(publishing): use github actions to publish ([0d6ad6a](https://github.com/ekino/node-config/commit/0d6ad6a))
+* chore(release): change base branch to master ([a592697](https://github.com/ekino/node-config/commit/a592697))
+* chore(release): don't delete release branch ([caea4e3](https://github.com/ekino/node-config/commit/caea4e3))
+* chore(yarn): Add missing yarn version plugin ([c0e7161](https://github.com/ekino/node-config/commit/c0e7161))
+* chore(yarn): migrate to yarn v2 ([203e433](https://github.com/ekino/node-config/commit/203e433))
+* fix(workflow): remove typo in folder name ([3071701](https://github.com/ekino/node-config/commit/3071701))
+
+
+
 ### [0.6.3](https://github.com/ekino/node-config/compare/v0.6.1...v0.6.3) (2020-01-15)
 
 
