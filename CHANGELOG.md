@@ -1,3 +1,9 @@
+## <small>1.0.1 (2021-05-07)</small>
+
+* chore(release): change yarn compile by yarn tsc ([230a6e0](https://github.com/ekino/node-config/commit/230a6e0))
+
+
+
 ## 1.0.0 (2021-05-07)
 
 * chore(actions): add codeQL actions ([3d9352c](https://github.com/ekino/node-config/commit/3d9352c))
