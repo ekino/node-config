@@ -22,7 +22,7 @@ jobs:
       - name: Compile and package library
         run: |
           yarn install
-          yarn compile
+          yarn tsc
           zip ekino-node-config-$VERSION.zip build package.json README.md CHANGELOG.md
           unzip -t ekino-node-config-$VERSION.zip
         env:
