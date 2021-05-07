@@ -35,5 +35,5 @@ jobs:
           committer: "Node-config Bot <noreply@github.com>"
           commit-message: "chore(release): bump version to ${{ github.event.inputs.version }}"
           labels: release
-          delete-branch: true
+          delete-branch: false
           base: master
