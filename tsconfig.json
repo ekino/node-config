@@ -16,5 +16,5 @@
         "forceConsistentCasingInFileNames": true
     },
     "includes": ["**/*"],
-    "exclude": ["./node_modules", "./test", "./build", "./coverage", "jest.config.js"]
+    "exclude": ["./node_modules", "./build", "./coverage"]
 }

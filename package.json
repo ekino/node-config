@@ -59,7 +59,7 @@
         "test-cover": "jest --coverage",
         "coverage": "jest --coverage --coverageReporters=text-lcov | coveralls",
         "version": "echo ${npm_package_version}",
-        "lint": "eslint ./*.ts ./test/*.js --fix",
-        "lint-check": "eslint ./*.ts ./test/*.js"
+        "lint": "eslint ./*.[tj]s ./test/*.[tj]s --fix",
+        "lint-check": "eslint ./*.[tj]s ./test/*.[tj]s"
     }
 }

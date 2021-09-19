@@ -3,16 +3,19 @@ import yaml from 'js-yaml'
 import fs from 'fs'
 import path from 'path'
 
-type Internals = {
+export type Internals = {
     cfg: Record<string, unknown>
     fillYamlExtension?(filePath: string): string
     // eslint-disable-next-line @typescript-eslint/ban-types
     read?(keyPath: string): Record<string, unknown> | undefined | null | string | object | number
-    readEventually?(keyPath: string): unknown | null
-    cast?(type: string, value: string | number): string | number | boolean
-    getEnvOverrides?(mappings: unknown): unknown
+    readEventually?(keyPath: string): MappingsType | null
+    cast?(type: string, value: string | number): InstanceConfigType
+    getEnvOverrides?(mappings: MappingsType): Record<string, InstanceConfigType>
     merge?<TObject, TSource>(object: TObject, source: TSource): TObject & TSource
 }
+
+export type InstanceConfigType = string | number | boolean | undefined
+export type MappingsType = Record<string, { key: string; type: string } | string>
 
 const internals: Internals = { cfg: {} }
 
@@ -28,18 +31,15 @@ export const get = <T>(key: string): T | unknown => _.get(internals.cfg, key)
  *
  * If value is null or undefined, key is removed.
  */
-export const set = <T>(key: string, value: T): void => {
-    if (value == null) {
-        _.unset(internals.cfg, key)
-    } else {
-        _.set(internals.cfg, key, value)
-    }
+export const set = <T>(key: string, value?: T | null): void => {
+    if (!value) _.unset(internals.cfg, key)
+    else _.set(internals.cfg, key, value)
 }
 
 /**
  * Dumps the whole config object.
  */
-export const dump = (): unknown => internals.cfg
+export const dump = (): Record<string, unknown> => internals.cfg
 
 /**
  * Loads config:
@@ -77,7 +77,7 @@ export const load = (): void => {
 
     // apply environment overrides (optional)
     const envOverridesConfig = internals.readEventually?.(path.join(confPath, 'env_mapping'))
-    if (envOverridesConfig !== null) {
+    if (envOverridesConfig) {
         const envOverrides = internals.getEnvOverrides?.(envOverridesConfig)
         internals.merge?.(internals.cfg, envOverrides)
     }
@@ -111,12 +111,12 @@ internals.read = (
  * @see internals.read
  *
  */
-internals.readEventually = (keyPath: string): unknown | null => {
+internals.readEventually = (keyPath: string): MappingsType | null => {
     const cleanedPath = internals.fillYamlExtension?.(keyPath) ?? keyPath
 
     try {
         const content = fs.readFileSync(cleanedPath, { encoding: 'utf8' })
-        return yaml.load(content)
+        return yaml.load(content) as MappingsType | null
     } catch (e) {
         if (e.code !== 'ENOENT') throw e
     }
@@ -147,7 +147,7 @@ internals.fillYamlExtension = (filePath: string): string => {
 /**
  * Cast a value using given type.
  */
-internals.cast = (type: string, value: string | number): string | number | boolean => {
+internals.cast = (type: string, value: string | number): InstanceConfigType => {
     switch (type) {
         case 'number': {
             const result = Number(value)
@@ -169,16 +169,15 @@ internals.cast = (type: string, value: string | number): string | number | boole
 /**
  * Read env variables override file and set config from env vars.
  */
-internals.getEnvOverrides = (
-    mappings: Record<string, { key: string; type: string } | string>
-): unknown => {
-    const overriden = {}
+internals.getEnvOverrides = (mappings: MappingsType): Record<string, InstanceConfigType> => {
+    const overridden: Record<string, InstanceConfigType> = {}
 
     _.forOwn(mappings, (mapping, key) => {
-        const envVal = process.env[key]
-        if (envVal === undefined) return true
+        if (process.env[key] === undefined) return true
 
-        let value: string | number | boolean
+        const envVal = process.env[key] as string | number
+
+        let value: InstanceConfigType
         let mappedKey: string
 
         if (isAdvancedConfig(mapping)) {
@@ -189,10 +188,10 @@ internals.getEnvOverrides = (
             value = envVal
         }
 
-        _.set(overriden, mappedKey, value)
+        _.set<InstanceConfigType>(overridden, mappedKey, value)
     })
 
-    return overriden
+    return overridden
 }
 
 /**
@@ -201,7 +200,7 @@ internals.getEnvOverrides = (
  */
 
 internals.merge = <TObject, TSource>(object: TObject, source: TSource): TObject & TSource =>
-    _.mergeWith(object, source, (object, source) => (Array.isArray(source) ? source : undefined))
+    _.mergeWith(object, source, (obj, src) => (Array.isArray(src) ? src : undefined))
 
 const isAdvancedConfig = (
     conf: { key: string; type: string } | string
