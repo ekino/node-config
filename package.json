@@ -4,7 +4,7 @@
     "description": "lightweight configuration module powered by yaml",
     "homepage": "https://github.com/ekino/node-config",
     "files": [
-        "build"
+        "lib"
     ],
     "main": "build/index.js",
     "types": "build/index.d.ts",
@@ -42,7 +42,7 @@
         "@types/jest": "26.x",
         "@types/js-yaml": "4.x",
         "@types/lodash": "4.x",
-        "@types/node": "14.x",
+        "@types/node": "^22.8.4",
         "commitlint": "19.5.0",
         "conventional-changelog-cli": "5.0.0",
         "jest": "26.x",
@@ -51,7 +51,7 @@
         "typescript": "5.6.3"
     },
     "scripts": {
-        "tsc": "tsc -d",
+        "build": "tsc -p tsconfig.lib.json",
         "test": "jest",
         "test-cover": "jest --coverage",
         "coverage": "jest --coverage --coverageReporters=text-lcov | coveralls",

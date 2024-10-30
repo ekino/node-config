@@ -1,4 +1,4 @@
-const config = require('../src/index')
+const config = require('../lib/index')
 
 const old_env = { ...process.env }
 

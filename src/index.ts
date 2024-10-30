@@ -6,7 +6,6 @@ import _ from 'lodash'
 type Internals = {
     cfg: Record<string, unknown>
     fillYamlExtension?(filePath: string): string
-    // eslint-disable-next-line @typescript-eslint/ban-types
     read?(keyPath: string): Record<string, unknown> | undefined | null | string | object | number
     readEventually?(keyPath: string): unknown | null
     cast?(type: string, value: string | number): string | number | boolean
@@ -93,14 +92,13 @@ export const load = (): void => {
  */
 internals.read = (
     keyPath: string
-    // eslint-disable-next-line @typescript-eslint/ban-types
 ): Record<string, unknown> | undefined | null | string | object | number => {
     const cleanedPath = internals.fillYamlExtension?.(keyPath) ?? keyPath
     try {
         const content = fs.readFileSync(cleanedPath, { encoding: 'utf8' })
         return yaml.load(content)
     } catch (e) {
-        if (e.code !== 'ENOENT') throw e
+        if ((e as NodeJS.ErrnoException).code !== 'ENOENT') throw e
         throw new Error(`Config error: Couldn't find or read file ${cleanedPath}.`)
     }
 }
@@ -118,7 +116,7 @@ internals.readEventually = (keyPath: string): unknown | null => {
         const content = fs.readFileSync(cleanedPath, { encoding: 'utf8' })
         return yaml.load(content)
     } catch (e) {
-        if (e.code !== 'ENOENT') throw e
+        if ((e as NodeJS.ErrnoException).code !== 'ENOENT') throw e
     }
 
     return null
