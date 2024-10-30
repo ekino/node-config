@@ -15,6 +15,6 @@
         "noImplicitThis": true,
         "forceConsistentCasingInFileNames": true
     },
-    "includes": ["**/*"],
+    "includes": ["src/**/*.ts"],
     "exclude": ["./node_modules", "./test", "./build", "./coverage", "jest.config.js"]
 }
