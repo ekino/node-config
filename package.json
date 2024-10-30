@@ -3,6 +3,9 @@
     "version": "1.0.0",
     "description": "lightweight configuration module powered by yaml",
     "homepage": "https://github.com/ekino/node-config",
+    "files": [
+        "build"
+    ],
     "main": "build/index.js",
     "types": "build/index.d.ts",
     "repository": {
@@ -22,7 +25,9 @@
     "tags": [
         "config",
         "yaml",
-        "lightweight"
+        "lightweight",
+        "env",
+        "variables environment"
     ],
     "engines": {
         "node": ">=12"
