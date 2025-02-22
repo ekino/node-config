@@ -1,7 +1,7 @@
 import fs from 'node:fs'
 import path from 'node:path'
 import yaml from 'js-yaml'
-import { getValue, isEmpty, mergeWith, setValue, unsetValue } from './utils/index.js'
+import { getValue, isEmpty, isNullsy, mergeWith, setValue, unsetValue } from './utils/index.js'
 
 type Internals = {
     cfg: Record<string, unknown>
@@ -27,8 +27,8 @@ export const get = <T>(key: string): T | unknown => getValue(internals.cfg, key)
  *
  * If value is null or undefined, key is removed.
  */
-export const set = <T>(key: string, value: T): void => {
-    if (value == null) {
+export const set = <T>(key: string, value?: T): void => {
+    if (isNullsy(value)) {
         unsetValue(internals.cfg, key)
     } else {
         setValue(internals.cfg, key, value)
@@ -179,7 +179,7 @@ internals.getEnvOverrides = (
     const overriden = {}
     for (const [key, mapping] of Object.entries(mappings)) {
         const envVal = process.env[key]
-        if (envVal === undefined) return true
+        if (isNullsy(envVal)) return true
 
         let value: string | number | boolean
         let mappedKey: string

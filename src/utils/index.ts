@@ -112,7 +112,7 @@ export const mergeWith = <TObject, TSource>(
     customizer?: Customizer
 ): TObject & TSource => {
     if (!isPlainObject(object) || !isPlainObject(source)) {
-        throw new TypeError('Both object and source must be plain objects.')
+        return object as TObject & TSource
     }
 
     const result: Record<string, unknown> = { ...object }
