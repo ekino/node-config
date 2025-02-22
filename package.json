@@ -37,17 +37,17 @@
         "lodash": "4.x"
     },
     "devDependencies": {
-        "@biomejs/biome": "^1.9.4",
-        "@types/jest": "26.x",
-        "@types/js-yaml": "4.x",
-        "@types/lodash": "4.x",
-        "@types/node": "^22.8.4",
-        "commitlint": "19.5.0",
+        "@biomejs/biome": "1.9.4",
+        "@types/jest": "29.5.14",
+        "@types/js-yaml": "4.0.9",
+        "@types/lodash": "4.17.15",
+        "@types/node": "22.13.5",
+        "commitlint": "19.7.1",
         "conventional-changelog-cli": "5.0.0",
-        "jest": "26.x",
-        "nyc": "15.x",
-        "ts-jest": "26.x",
-        "typescript": "5.6.3"
+        "jest": "29.7.0",
+        "nyc": "17.1.0",
+        "ts-jest": "29.2.5",
+        "typescript": "5.7.3"
     },
     "scripts": {
         "build": "tsc -p tsconfig.lib.json",
