@@ -7,8 +7,20 @@
         "lib"
     ],
     "type": "module",
-    "main": "lib/index.js",
-    "types": "lib/index.d.ts",
+    "main": "./lib/esm/index.js",
+    "types": "lib/esm/index.d.ts",
+    "exports": {
+        ".": {
+            "import": {
+                "types": "./lib/esm/index.d.ts",
+                "default": "./lib/esm/index.js"
+            },
+            "require": {
+                "types": "./lib/cjs/index.d.ts",
+                "default": "./lib/cjs/index.js"
+            }
+        }
+    },
     "repository": {
         "type": "git",
         "url": "https://github.com/ekino/node-config.git"
@@ -49,7 +61,10 @@
         "typescript": "5.7.3"
     },
     "scripts": {
-        "build": "tsc -p tsconfig.lib.json",
+        "build": "pnpm run build:esm && pnpm run build:cjs",
+        "build:esm": "tsc -p tsconfig.lib.json --outDir lib/esm",
+        "build:cjs": "tsc -p tsconfig.lib.json --module CommonJS --moduleResolution Node --outDir lib/cjs",
+        "postbuild:cjs": "echo '{\"type\": \"commonjs\"}' > lib/cjs/package.json",
         "test": "jest",
         "test-cover": "jest --coverage",
         "coverage": "jest --coverage --coverageReporters=text-lcov | coveralls",
