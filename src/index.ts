@@ -1,7 +1,7 @@
 import fs from 'node:fs'
 import path from 'node:path'
 import yaml from 'js-yaml'
-import _ from 'lodash'
+import { getValue, isEmpty, mergeWith, setValue, unsetValue } from './utils'
 
 type Internals = {
     cfg: Record<string, unknown>
@@ -19,7 +19,7 @@ const internals: Internals = { cfg: {} }
  * Get a value from the configuration. Supports dot notation (eg: "key.subkey.subsubkey")...
  *
  */
-export const get = <T>(key: string): T | unknown => _.get(internals.cfg, key)
+export const get = <T>(key: string): T | unknown => getValue(internals.cfg, key)
 
 /**
  * Set a value in the configuration. Supports dot notation (eg: "key.subkey.subsubkey")
@@ -29,9 +29,9 @@ export const get = <T>(key: string): T | unknown => _.get(internals.cfg, key)
  */
 export const set = <T>(key: string, value: T): void => {
     if (value == null) {
-        _.unset(internals.cfg, key)
+        unsetValue(internals.cfg, key)
     } else {
-        _.set(internals.cfg, key, value)
+        setValue(internals.cfg, key, value)
     }
 }
 
@@ -65,7 +65,7 @@ export const load = (): void => {
             .map((filename) => filename.trim())
             .filter(
                 // remove garbage and prevent dupes
-                (filename) => !_.isEmpty(filename) && filename !== 'base'
+                (filename) => !isEmpty(filename) && filename !== 'base'
             )
     }
 
@@ -96,7 +96,13 @@ internals.read = (
     const cleanedPath = internals.fillYamlExtension?.(keyPath) ?? keyPath
     try {
         const content = fs.readFileSync(cleanedPath, { encoding: 'utf8' })
-        return yaml.load(content)
+        return yaml.load(content) as
+            | Record<string, unknown>
+            | undefined
+            | null
+            | string
+            | object
+            | number
     } catch (e) {
         if ((e as NodeJS.ErrnoException).code !== 'ENOENT') throw e
         throw new Error(`Config error: Couldn't find or read file ${cleanedPath}.`)
@@ -130,7 +136,7 @@ internals.fillYamlExtension = (filePath: string): string => {
     let result = filePath
 
     // Try with yaml extension first and if not yml
-    if (_.isEmpty(extension)) {
+    if (isEmpty(extension)) {
         try {
             result = `${filePath}.yaml`
             fs.accessSync(result, fs.constants.R_OK)
@@ -171,8 +177,7 @@ internals.getEnvOverrides = (
     mappings: Record<string, { key: string; type: string } | string>
 ): unknown => {
     const overriden = {}
-
-    _.forOwn(mappings, (mapping, key) => {
+    for (const [key, mapping] of Object.entries(mappings)) {
         const envVal = process.env[key]
         if (envVal === undefined) return true
 
@@ -187,9 +192,8 @@ internals.getEnvOverrides = (
             value = envVal
         }
 
-        _.set(overriden, mappedKey, value)
-    })
-
+        setValue(overriden, mappedKey, value)
+    }
     return overriden
 }
 
@@ -199,7 +203,7 @@ internals.getEnvOverrides = (
  */
 
 internals.merge = <TObject, TSource>(object: TObject, source: TSource): TObject & TSource =>
-    _.mergeWith(object, source, (object, source) => (Array.isArray(source) ? source : undefined))
+    mergeWith(object, source, (_object, source) => (Array.isArray(source) ? source : undefined))
 
 const isAdvancedConfig = (
     conf: { key: string; type: string } | string
