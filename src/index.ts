@@ -1,7 +1,7 @@
 import fs from 'node:fs'
 import path from 'node:path'
 import yaml from 'js-yaml'
-import { getValue, isEmpty, mergeWith, setValue, unsetValue } from './utils'
+import { getValue, isEmpty, mergeWith, setValue, unsetValue } from './utils/index.js'
 
 type Internals = {
     cfg: Record<string, unknown>
