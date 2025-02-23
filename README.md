@@ -1,18 +1,16 @@
 # @ekino/config
 
 [![NPM version][npm-image]][npm-url]
-[![Travis CI][travis-image]][travis-url]
 [![Coverage Status][coverage-image]][coverage-url]
-[![styled with prettier][prettier-image]][prettier-url]
 
 A lightweight/opinionated/versatile configuration module powered by yaml.
 
--   [Motivation](#motivation)
--   [Installation](#installation)
--   [Usage](#usage)
-    -   [Environment variables override](#environment-variables-override)
-    -   [CONF_FILES override](#conf_files-override)
-    -   [Inheritance model](#inheritance-model)
+- [Motivation](#motivation)
+- [Installation](#installation)
+- [Usage](#usage)
+    - [Environment variables override](#environment-variables-override)
+    - [CONF_FILES override](#conf_files-override)
+    - [Inheritance model](#inheritance-model)
 
 ## Motivation
 
@@ -21,16 +19,16 @@ Why the hell another Node.js config package?
 That's a question we asked ourselves before starting this module,
 we wanted simple config management with the following features:
 
--   Simple to use
--   Small footprint
--   Homogeneous config file format
--   No global/specific/pre-configured module to load (eg. require the lib, configure it and then require this file instead directly using the package)
--   Human readable
--   Concise
--   Comments
--   Types
--   Overrides
--   Env variables support
+- Simple to use
+- Small footprint
+- Homogeneous config file format
+- No global/specific/pre-configured module to load (eg. require the lib, configure it and then require this file instead directly using the package)
+- Human readable
+- Concise
+- Comments
+- Types
+- Overrides
+- Env variables support
 
 Several modules already exist, but none of them matched our requirements,
 some were far too limited and others, in our opinion, really bloated.
@@ -267,9 +265,5 @@ _All files surrounded by `[]` are optional._
 
 [npm-image]: https://img.shields.io/npm/v/@ekino/config.svg?style=flat-square
 [npm-url]: https://www.npmjs.com/package/@ekino/config
-[travis-image]: https://img.shields.io/travis/ekino/node-config.svg?style=flat-square
-[travis-url]: https://travis-ci.org/ekino/node-config
-[prettier-image]: https://img.shields.io/badge/styled_with-prettier-ff69b4.svg?style=flat-square
-[prettier-url]: https://github.com/prettier/prettier
 [coverage-image]: https://img.shields.io/coveralls/ekino/node-config/master.svg?style=flat-square
 [coverage-url]: https://coveralls.io/github/ekino/node-config?branch=master
