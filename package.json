@@ -65,6 +65,7 @@
         "postbuild:cjs": "echo '{\"type\": \"commonjs\"}' > lib/cjs/package.json",
         "test": "vitest --run",
         "coverage": "vitest run --coverage",
+        "check-typing": "tsc -p tsconfig.json --noEmit",
         "version": "echo ${npm_package_version}",
         "lint": "biome check --write",
         "lint-check": "biome check",
