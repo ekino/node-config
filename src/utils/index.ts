@@ -1,10 +1,11 @@
 export type Path = string | string[] | (string | number)[]
-export type Customizer<T = unknown, S = unknown> = (
-    objValue: T,
-    srcValue: S,
-    key: string,
-    object: Record<string, unknown>,
-    source: Record<string, unknown>
+export type Customizer = (
+    objValue: unknown,
+    srcValue: unknown,
+    key: string | symbol,
+    target: unknown,
+    source: unknown,
+    stack: Map<unknown, unknown>
 ) => unknown
 
 export const isNumber = (n: unknown): n is number => Number.isFinite(n)
@@ -33,6 +34,28 @@ export const isObject = (value: unknown): value is Record<string, unknown> =>
 
 export const isPlainObject = (value: unknown): value is Record<string, unknown> =>
     isObject(value) && Object.prototype.toString.call(value) === '[object Object]'
+
+export const isArguments = (value: unknown): value is Record<string, unknown> => {
+    return Object.prototype.toString.call(value) === '[object Arguments]'
+}
+
+export const isTypedArray = (value: unknown): boolean => {
+    return ArrayBuffer.isView(value) && !(value instanceof DataView)
+}
+
+export const getSymbols = (object: unknown): (string | symbol)[] => {
+    return isObject(object) ? Object.getOwnPropertySymbols(object) : []
+}
+
+export const clone = <T = unknown>(value: T): T => {
+    if (Array.isArray(value)) return [...value] as T
+    if (isPlainObject(value)) return { ...value } as T
+    return value
+}
+
+export const isPrimitive = (value: unknown): boolean => {
+    return value === null || (typeof value !== 'object' && typeof value !== 'function')
+}
 
 const parsePath = (path: Path): (string | number)[] => {
     if (Array.isArray(path)) {
@@ -72,7 +95,8 @@ export const setValue = (obj: unknown, path: Path, value: unknown): unknown => {
             current[key] = value
         } else {
             if (isNullsy(current[key]) || typeof current[key] !== 'object') {
-                current[key] = {}
+                const nextKey = pathArray[i + 1]
+                current[key] = typeof nextKey === 'number' ? [] : {}
             }
             current = current[key] as Record<string | number, unknown>
         }
@@ -106,37 +130,96 @@ export const unsetValue = (obj: unknown, path?: Path): boolean => {
     return false
 }
 
-export const mergeWith = <TObject, TSource>(
-    object: TObject,
-    source: TSource,
-    customizer?: Customizer
-): TObject & TSource => {
-    if (!isPlainObject(object) || !isPlainObject(source)) {
-        return object as TObject & TSource
+export function mergeWith(object: unknown, ...otherArgs: unknown[]): unknown {
+    if (!otherArgs.length) return object
+    let customizer: Customizer | undefined
+    if (typeof otherArgs[otherArgs.length - 1] === 'function') {
+        customizer = otherArgs.pop() as Customizer
+    }
+    const sources = otherArgs
+
+    let result = object
+    for (const source of sources) {
+        result = mergeWithDeep(result, source, customizer, new Map())
+    }
+    return result
+}
+
+const mergeWithDeep = (
+    target: unknown,
+    source: unknown,
+    customizer: Customizer | undefined,
+    stack: Map<unknown, unknown>
+): unknown => {
+    // If target is a primitive, wrap it so properties can be assigned.
+    if (isPrimitive(target)) {
+        target = Object(target)
+    }
+    if (isNullsy(source) || typeof source !== 'object') {
+        return target
+    }
+    // Handle circular references by cloning the existing target.
+    if (stack.has(source)) {
+        return clone(stack.get(source))
+    }
+    stack.set(source, target)
+
+    // For arrays, work on a shallow copy.
+    if (Array.isArray(source)) {
+        source = [...source]
     }
 
-    const result: Record<string, unknown> = { ...object }
+    // Merge both string and symbol keys.
+    const sourceKeys: (string | symbol)[] = [
+        ...Object.keys(source as object),
+        ...getSymbols(source),
+    ]
 
-    for (const key in source) {
-        if (Object.hasOwn(source, key)) {
-            const objValue = result[key]
-            const srcValue = source[key]
+    for (const key of sourceKeys) {
+        let srcValue = (source as Record<string | symbol, unknown>)[key]
+        let tgtValue = isObject(target)
+            ? (target as Record<string | symbol, unknown>)[key]
+            : undefined
 
-            if (customizer) {
-                const customizedValue = customizer(objValue, srcValue, key, result, source)
-                if (!isNullsy(customizedValue)) {
-                    result[key] = customizedValue
-                    continue
-                }
-            }
+        if (isArguments(srcValue)) {
+            srcValue = { ...srcValue }
+        }
+        if (isArguments(tgtValue)) {
+            tgtValue = { ...tgtValue }
+        }
 
-            if (isPlainObject(objValue) && isPlainObject(srcValue)) {
-                result[key] = mergeWith(objValue, srcValue, customizer)
-            } else if (!isNullsy(srcValue)) {
-                result[key] = srcValue
+        if (typeof Buffer !== 'undefined' && Buffer.isBuffer(srcValue)) {
+            srcValue = structuredClone(srcValue)
+        }
+
+        if (Array.isArray(srcValue)) {
+            if (isObject(tgtValue)) {
+                tgtValue = Array.isArray(tgtValue) ? [...(tgtValue as unknown[])] : []
+            } else {
+                tgtValue = []
             }
         }
-    }
 
-    return result as TObject & TSource
+        let merged: unknown
+        if (customizer) {
+            merged = customizer(tgtValue, srcValue, key, target, source, stack)
+        }
+        if (merged === undefined) {
+            if (Array.isArray(srcValue)) {
+                merged = mergeWithDeep(tgtValue, srcValue, customizer, stack)
+            } else if (isObject(tgtValue) && isObject(srcValue)) {
+                merged = mergeWithDeep(tgtValue, srcValue, customizer, stack)
+            } else if (tgtValue === undefined && isPlainObject(srcValue)) {
+                merged = mergeWithDeep({}, srcValue, customizer, stack)
+            } else if (tgtValue === undefined && isTypedArray(srcValue)) {
+                merged = structuredClone(srcValue)
+            } else if (tgtValue === undefined || srcValue !== undefined) {
+                merged = srcValue
+            }
+        }
+        if (merged !== undefined && isObject(target)) {
+            ;(target as Record<string | symbol, unknown>)[key] = merged
+        }
+    }
+    return target
 }

@@ -3,14 +3,16 @@ import path from 'node:path'
 import yaml from 'js-yaml'
 import { getValue, isEmpty, isNullsy, mergeWith, setValue, unsetValue } from './utils/index.js'
 
+type YamlContent = Record<string, unknown> | undefined | null | string | number
+
 type Internals = {
     cfg: Record<string, unknown>
     fillYamlExtension?(filePath: string): string
-    read?(keyPath: string): Record<string, unknown> | undefined | null | string | object | number
+    read?(keyPath: string): YamlContent
     readEventually?(keyPath: string): unknown | null
-    cast?(type: string, value: string | number): string | number | boolean
+    cast?(type: string, value?: string | number | boolean): string | number | boolean
     getEnvOverrides?(mappings: unknown): unknown
-    merge?<TObject, TSource>(object: TObject, source: TSource): TObject & TSource
+    merge?(object: unknown, source: unknown): unknown
 }
 
 const internals: Internals = { cfg: {} }
@@ -38,7 +40,7 @@ export const set = <T>(key: string, value?: T): void => {
 /**
  * Dumps the whole config object.
  */
-export const dump = (): unknown => internals.cfg
+export const dump = (): Record<string, unknown> => internals.cfg
 
 /**
  * Loads config:
@@ -76,7 +78,7 @@ export const load = (): void => {
 
     // apply environment overrides (optional)
     const envOverridesConfig = internals.readEventually?.(path.join(confPath, 'env_mapping'))
-    if (envOverridesConfig !== null) {
+    if (envOverridesConfig) {
         const envOverrides = internals.getEnvOverrides?.(envOverridesConfig)
         internals.merge?.(internals.cfg, envOverrides)
     }
@@ -86,23 +88,12 @@ export const load = (): void => {
 
 /**
  * Read a yaml file and convert it to javascript object.
- *
- * WARNING: This use a sync function to read file
- *
  */
-internals.read = (
-    keyPath: string
-): Record<string, unknown> | undefined | null | string | object | number => {
+internals.read = (keyPath: string): YamlContent => {
     const cleanedPath = internals.fillYamlExtension?.(keyPath) ?? keyPath
     try {
         const content = fs.readFileSync(cleanedPath, { encoding: 'utf8' })
-        return yaml.load(content) as
-            | Record<string, unknown>
-            | undefined
-            | null
-            | string
-            | object
-            | number
+        return yaml.load(content) as YamlContent
     } catch (e) {
         if ((e as NodeJS.ErrnoException).code !== 'ENOENT') throw e
         throw new Error(`Config error: Couldn't find or read file ${cleanedPath}.`)
@@ -179,7 +170,7 @@ internals.getEnvOverrides = (
     const overriden = {}
     for (const [key, mapping] of Object.entries(mappings)) {
         const envVal = process.env[key]
-        if (isNullsy(envVal)) return true
+        if (isNullsy(envVal)) continue
 
         let value: string | number | boolean
         let mappedKey: string
@@ -202,8 +193,10 @@ internals.getEnvOverrides = (
  * This function is used to customize the default output of `_.mergeWith()`.
  */
 
-internals.merge = <TObject, TSource>(object: TObject, source: TSource): TObject & TSource =>
-    mergeWith(object, source, (_object, source) => (Array.isArray(source) ? source : undefined))
+internals.merge = (object: unknown, source: unknown): unknown =>
+    mergeWith(object, source, (_object: unknown, source: unknown) =>
+        Array.isArray(source) ? source : undefined
+    )
 
 const isAdvancedConfig = (
     conf: { key: string; type: string } | string
