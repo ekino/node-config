@@ -54,7 +54,6 @@
         "@types/node": "22.13.5",
         "@vitest/coverage-v8": "3.0.6",
         "commitlint": "19.7.1",
-        "conventional-changelog-cli": "5.0.0",
         "typescript": "5.7.3",
         "vitest": "3.0.6"
     },
@@ -66,6 +65,7 @@
         "test": "vitest --run",
         "coverage": "vitest run --coverage",
         "check-typing": "tsc -p tsconfig.json --noEmit",
+        "changelog": "git cliff --latest",
         "version": "echo ${npm_package_version}",
         "lint": "biome check --write",
         "lint-check": "biome check",
