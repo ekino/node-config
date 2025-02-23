@@ -68,7 +68,7 @@
         "changelog": "git cliff --latest",
         "version": "echo ${npm_package_version}",
         "lint": "biome check --write",
-        "lint-check": "biome check",
+        "check": "biome check",
         "postinstall": "git config core.hooksPath ./.githooks || true"
     }
 }
