@@ -8,11 +8,7 @@ export type Customizer = (
     stack: Map<unknown, unknown>
 ) => unknown
 
-export const isNumber = (n: unknown): n is number => Number.isFinite(n)
-
 export const isNullsy = (val: unknown): val is undefined | null => val === undefined || val === null
-
-export const isNotNullsy = <T>(val: unknown): val is T => val !== undefined && val !== null
 
 export const isEmpty = (val: unknown): boolean => {
     if (val === null || val === undefined) return true
@@ -20,14 +16,6 @@ export const isEmpty = (val: unknown): boolean => {
     if (typeof val === 'object') return Object.keys(val).length === 0
     return false
 }
-
-export const isDefined = <T>(toTest: T | undefined | null): toTest is T => {
-    return !!toTest
-}
-
-export const isString = (val: unknown): val is string => typeof val === 'string'
-
-export const isFunction = (func: unknown): boolean => typeof func === 'function'
 
 export const isObject = (value: unknown): value is Record<string, unknown> =>
     value !== null && typeof value === 'object'
