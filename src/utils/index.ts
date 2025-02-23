@@ -23,25 +23,25 @@ export const isObject = (value: unknown): value is Record<string, unknown> =>
 export const isPlainObject = (value: unknown): value is Record<string, unknown> =>
     isObject(value) && Object.prototype.toString.call(value) === '[object Object]'
 
-export const isArguments = (value: unknown): value is Record<string, unknown> => {
+const isArguments = (value: unknown): value is Record<string, unknown> => {
     return Object.prototype.toString.call(value) === '[object Arguments]'
 }
 
-export const isTypedArray = (value: unknown): boolean => {
+const isTypedArray = (value: unknown): boolean => {
     return ArrayBuffer.isView(value) && !(value instanceof DataView)
 }
 
-export const getSymbols = (object: unknown): (string | symbol)[] => {
+const getSymbols = (object: unknown): (string | symbol)[] => {
     return isObject(object) ? Object.getOwnPropertySymbols(object) : []
 }
 
-export const clone = <T = unknown>(value: T): T => {
+const clone = <T = unknown>(value: T): T => {
     if (Array.isArray(value)) return [...value] as T
     if (isPlainObject(value)) return { ...value } as T
     return value
 }
 
-export const isPrimitive = (value: unknown): boolean => {
+const isPrimitive = (value: unknown): boolean => {
     return value === null || (typeof value !== 'object' && typeof value !== 'function')
 }
 
@@ -93,7 +93,7 @@ export const setValue = (obj: unknown, path: Path, value: unknown): unknown => {
 }
 
 export const unsetValue = (obj: unknown, path?: Path): boolean => {
-    if (obj == null || !path) return false
+    if (isNullsy(obj) || !path) return false
 
     if (typeof path === 'string' && Object.prototype.hasOwnProperty.call(obj, path)) {
         return delete (obj as Record<string, unknown>)[path]
