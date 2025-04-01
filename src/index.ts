@@ -131,7 +131,7 @@ internals.fillYamlExtension = (filePath: string): string => {
         try {
             result = `${filePath}.yaml`
             fs.accessSync(result, fs.constants.R_OK)
-        } catch (e) {
+        } catch {
             result = `${filePath}.yml`
         }
     }
