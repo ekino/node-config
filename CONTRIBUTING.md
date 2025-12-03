@@ -8,75 +8,75 @@ Whether you're fixing a bug, adding a new feature, or improving documentation, y
 
 Don't worry if you feel unsure about where to start—every bit of help is appreciated, and questions are welcome.
 
-## How to contribute
+## How to Contribute
 
-Follow this guide to ensure a smooth contribution process. If you're planning significant work or substantial changes, please create an issue labeled "contribution enquiry" to discuss your proposal. This will help ensure that your work aligns with the project's goals.
+Follow this guide to ensure a smooth contribution process.
 
-### Steps to get started
+### Steps to Get Started
 
-- **Fork the repository**
-  Start by [forking the repository](http://help.github.com/fork-a-repo/).
+1. **Fork the Repository**
+   Start by [forking the repository](http://help.github.com/fork-a-repo/).
 
-- **Clone your fork**
-  Clone your forked repo to your local machine:
+2. **Clone Your Fork**
+   Clone your forked repo to your local machine:
 
     ```bash
-    git clone git@github.com:ekino/node-config.git
+    git clone git@github.com:[YOUR_GITHUB_ACCOUNT]/node-config.git
     ```
 
-- **Set upstream**
-  Link back to the main project repository:
+3. **Set Upstream**
+   Link back to the main project repository:
 
     ```bash
     git remote add upstream git://github.com/ekino/node-config.git
     ```
 
-- **Sync with upstream**
-  Fetch the latest changes from upstream, usually the main development branch:
+4. **Sync With Upstream**
+   Fetch the latest changes from upstream, usually the main development branch:
 
     ```bash
     git pull upstream <dev-branch>
     ```
 
-- **Create a topic branch**
-  Create a new branch for your feature, fix, or enhancement:
+5. **Create a Topic Branch**
+   Create a new branch for your feature, fix, or enhancement:
 
     ```bash
-    git switch -c <topic-branch-name>
+    git checkout -b <topic-branch-name>
     ```
 
-- **Write tests**
-  Ensure your changes are reliable by including tests. For small patches, a simple test is fine; for new features, create a dedicated test suite.
+6. **Write Tests**
+   Ensure your changes are reliable by including tests. For small patches, a simple test is fine; for new features, create a dedicated test suite.
 
-- **Coding style and conventions**
-  Maintain the project’s coding standards. Consistent indentation, comments, and style improve readability.
+7. **Coding Style and Conventions**
+   This project uses [Biome](https://biomejs.dev/) for linting and formatting. For the best experience, install the [Biome extension for VS Code](https://biomejs.dev/reference/vscode/) or the extension for your IDE. This ensures automatic formatting and linting that respects the project's style.
 
-- **Commit changes in logical chunks**
-  Split your commits into logical parts. Use git’s [interactive rebase](https://help.github.com/articles/interactive-rebase) to keep your commit history clean.
+8. **Commit Changes in Logical Chunks**
+   Split your commits into logical parts. Use git’s [interactive rebase](https://help.github.com/articles/interactive-rebase) to keep your commit history clean.
 
-- **Merge with upstream**
-  Sync your branch with the latest upstream changes:
+9. **Merge With Upstream**
+   Sync your branch with the latest upstream changes:
 
     ```bash
     git pull --rebase upstream <dev-branch>
     ```
 
-- **Push to your fork**
-  Push your topic branch to your fork:
+10. **Push to Your Fork**
+    Push your topic branch to your fork:
 
     ```bash
     git push origin <topic-branch-name>
     ```
 
-- **Create a pull request**
-  Open a [pull request](http://help.github.com/send-pull-requests/) with a clear title and description, explaining why and how you made your changes.
+11. **Create a Pull Request**
+    Open a [Pull Request](http://help.github.com/send-pull-requests/) with a clear title and description, explaining why and how you made your changes.
 
-### Guidelines for a successful contribution
+### Guidelines for a Successful Contribution
 
-- Keep your PR focused; avoid unrelated changes.
-- Write meaningful commit messages. See [this guide](http://tbaggery.com/2008/04/19/a-note-about-git-commit-messages.html) for best practices.
-- Follow the project’s formatting and coding style.
-- Update documentation or comments as needed to explain your changes.
+- **Focused Scope**: Keep your PR focused; avoid unrelated changes.
+- **Commit Messages**: Write meaningful commit messages. See [this guide](http://tbaggery.com/2008/04/19/a-note-about-git-commit-messages.html) for best practices.
+- **Style Consistency**: Follow the project’s formatting and coding style.
+- **Documentation**: Update documentation or comments as needed to explain your changes.
 
 ### Need Help?
 
