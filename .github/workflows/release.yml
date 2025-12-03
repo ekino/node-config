@@ -1,21 +1,21 @@
 name: Release
-
 on:
   workflow_dispatch:
     inputs:
       strategy:
-        description: 'Valid semver (x.x.x) or strategy (patch, minor, major)'
+        description: Valid semver number <x.x.x> or strategy <patch, minor, major>
         default: 'patch'
         required: false
 
 permissions:
   contents: write
 
+run-name: Release v${{ inputs.strategy }}
+
 jobs:
   release:
     runs-on: ubuntu-24.04
-    if: ${{ github.actor == 'pebie' || github.actor == 'leguellec' }}
-
+    if: github.actor_permissions == 'maintain' || github.actor_permissions == 'admin'
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -28,17 +28,17 @@ jobs:
           version: 10
           run_install: false
 
-      - name: Setup Node.js 22.x
+      - name: Setup Node.js 24.x
         uses: actions/setup-node@v4
         with:
-          node-version: '22.x'
+          node-version: '24.x'
           cache: 'pnpm'
           registry-url: 'https://registry.npmjs.org'
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Build the project
+      - name: Build
         run: pnpm run build
 
       - name: Set up Git user
@@ -52,6 +52,7 @@ jobs:
           npm version ${{ github.event.inputs.strategy }} -m "chore(release): v%s"
           VERSION=$(node -p "require('./package.json').version")
           echo "current-version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Version bumped to $VERSION"
 
       - name: Set up git-cliff
         uses: kenji-miyake/setup-git-cliff@v2
