@@ -55,17 +55,17 @@ building awesome things like it did for us.
 
 ## Installation
 
-Using yarn
+Using pnpm: `pnpm add @ekino/config`
 
-```
-yarn add @ekino/config
-```
+Or npm: `npm install @ekino/config`
 
-Or npm
+### Git hooks
 
-```
-npm install @ekino/config
-```
+This package configures local Git hooks for the repository by setting:
+
+`core.hooksPath = ./.githooks`
+
+This is done automatically during installation to ensure Git hooks are consistently enabled for contributors.
 
 ## Usage
 
@@ -76,10 +76,12 @@ By default, this module assumes that configuration files are located in the root
 Yet, you can load files with relative path or absolute path anywhere else:
 
 ```
+
 ├─ conf/
-   ├─ base.yaml        # the base configuration
-   ├─ env_mapping.yaml # defines mapping between env vars and config keys
-   └─ dev.yaml         # Optional file loaded if CONF_FILES includes `dev`
+├─ base.yaml # the base configuration
+├─ env_mapping.yaml # defines mapping between env vars and config keys
+└─ dev.yaml # Optional file loaded if CONF_FILES includes `dev`
+
 ```
 
 `base.yaml` is required, it defines the common basic configuration of your application.

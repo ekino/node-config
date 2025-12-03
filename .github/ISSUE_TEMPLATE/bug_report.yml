@@ -28,10 +28,10 @@ body:
     validations:
       required: true
     attributes:
-      label: Version of @ekino/@ekino/config
+      label: Version of @ekino/config
       placeholder: e.g., v2.0.0
       description: |
-        You can find this by running `npm list @ekino/@ekino/config` or similar.
+        You can find this by running `npm list @ekino/config` or similar.
 
   - type: input
     validations:
