@@ -464,5 +464,256 @@ describe('src > utils > index', () => {
                 },
             })
         })
+
+        it('should handle circular references without infinite recursion', () => {
+            const obj1: Record<string, unknown> = { a: 1 }
+            const obj2: Record<string, unknown> = { b: 2 }
+            obj2['circular'] = obj2 // Create circular reference
+
+            const result = mergeWith(obj1, obj2)
+            expect(result).toHaveProperty('a', 1)
+            expect(result).toHaveProperty('b', 2)
+            expect(result).toHaveProperty('circular')
+        })
+
+        it('should merge when target is a primitive value', () => {
+            const target = 42
+            const source = { key: 'value' }
+            const result = mergeWith(target, source) as Record<string, unknown>
+            // When target is primitive, it gets wrapped and properties are added
+            expect(result['key']).toBe('value')
+        })
+
+        it('should handle Arguments objects correctly', () => {
+            function createArgs(..._args: unknown[]) {
+                // biome-ignore lint/complexity/noArguments: Testing arguments object handling intentionally
+                return arguments
+            }
+            const args = createArgs(1, 2, 3)
+            const target = { data: {} }
+            const source = { data: args }
+            const result = mergeWith(target, source)
+            expect(result).toHaveProperty('data')
+            expect((result as Record<string, unknown>)['data']).toEqual({ 0: 1, 1: 2, 2: 3 })
+        })
+
+        it('should handle Buffer objects by cloning them', () => {
+            if (typeof Buffer === 'undefined') {
+                // Skip in environments without Buffer
+                return
+            }
+            const buffer1 = Buffer.from('hello')
+            const buffer2 = Buffer.from('world')
+            const target = { data: buffer1 }
+            const source = { data: buffer2 }
+            const result = mergeWith(target, source) as { data: Buffer }
+            expect(Buffer.isBuffer(result.data)).toBe(true)
+            expect(result.data.toString()).toBe('world')
+            // Verify it's a clone, not the same reference
+            expect(result.data).not.toBe(buffer2)
+        })
+
+        it('should handle TypedArray objects correctly', () => {
+            const target = { data: undefined }
+            const source = { data: new Uint8Array([1, 2, 3, 4]) }
+            const result = mergeWith(target, source) as { data: Uint8Array }
+            expect(result.data instanceof Uint8Array).toBe(true)
+            expect(Array.from(result.data)).toEqual([1, 2, 3, 4])
+        })
+
+        it('should merge arrays when target is a non-array object', () => {
+            const target = { items: { 0: 'old', length: 1 } }
+            const source = { items: ['new1', 'new2'] }
+            const result = mergeWith(target, source)
+            expect(result).toEqual({
+                items: ['new1', 'new2'],
+            })
+        })
+
+        it('should handle symbol keys during merge', () => {
+            const sym1 = Symbol('test1')
+            const sym2 = Symbol('test2')
+            const target = { [sym1]: 'value1', regular: 'old' }
+            const source = { [sym2]: 'value2', regular: 'new' }
+            const result = mergeWith(target, source) as Record<string | symbol, unknown>
+            expect(result[sym1]).toBe('value1')
+            expect(result[sym2]).toBe('value2')
+            expect(result['regular']).toBe('new')
+        })
+
+        it('should handle merging when source is not an object', () => {
+            const target = { key: 'value' }
+            const result = mergeWith(target, null)
+            expect(result).toEqual({ key: 'value' })
+
+            const result2 = mergeWith(target, undefined)
+            expect(result2).toEqual({ key: 'value' })
+
+            const result3 = mergeWith(target, 'string')
+            expect(result3).toEqual({ key: 'value' })
+        })
+
+        it('should handle merging plain objects when target value is undefined', () => {
+            const target = { config: undefined }
+            const source = { config: { setting: 'value' } }
+            const result = mergeWith(target, source)
+            expect(result).toEqual({ config: { setting: 'value' } })
+        })
+
+        it('should use customizer return value when provided', () => {
+            const customizer: Customizer = (_objValue, _srcValue, key) => {
+                if (key === 'special') {
+                    return 'customized'
+                }
+                return undefined
+            }
+            const target = { special: 'old', regular: 'old' }
+            const source = { special: 'new', regular: 'new' }
+            const result = mergeWith(target, source, customizer)
+            expect(result).toEqual({
+                special: 'customized',
+                regular: 'new',
+            })
+        })
+
+        it('should handle merging when no sources are provided', () => {
+            const target = { key: 'value' }
+            const result = mergeWith(target)
+            expect(result).toEqual({ key: 'value' })
+        })
+    })
+
+    describe('edge cases and internal functions', () => {
+        it('should handle getValue with empty path', () => {
+            const obj = { a: 1 }
+            expect(getValue(obj, '')).toBeUndefined()
+            // Empty array path returns the object itself through reduction
+            const result = getValue(obj, [])
+            expect(result).toBeDefined()
+        })
+
+        it('should handle getValue when path exists as direct property', () => {
+            const obj = { 'user.name': 'direct' }
+            expect(getValue(obj, 'user.name')).toBe('direct')
+        })
+
+        it('should handle setValue with nullsy intermediate keys', () => {
+            const obj: Record<string, unknown> = {}
+            setValue(obj, ['a', '', 'c'], 'value')
+            // The empty string key should be skipped in the path
+            expect(obj).toHaveProperty('a')
+        })
+
+        it('should handle unsetValue when path traversal encounters non-object', () => {
+            const obj = {
+                level1: {
+                    level2: 'string-value',
+                },
+            }
+            // Trying to traverse through a string should return false
+            const result = unsetValue(obj, 'level1.level2.level3')
+            expect(result).toBe(false)
+        })
+
+        it('should handle unsetValue with nullsy last key', () => {
+            const obj = { a: { b: 'value' } }
+            const result = unsetValue(obj, ['a', null as unknown as string])
+            expect(result).toBe(false)
+        })
+
+        it('should handle unsetValue when object itself has direct property', () => {
+            const obj = { 'a.b.c': 'value', other: 'data' }
+            const result = unsetValue(obj, 'a.b.c')
+            expect(result).toBe(true)
+            expect(obj).toEqual({ other: 'data' })
+        })
+
+        it('should handle parsePath with various formats', () => {
+            const obj = {
+                'a.b': { c: 'value1' },
+                a: {
+                    b: { c: 'value2' },
+                },
+            }
+            // When path exists as direct property, it should be used
+            expect(getValue(obj, 'a.b')).toEqual({ c: 'value1' })
+        })
+
+        it('should handle getValue with array path format', () => {
+            const obj = { a: { b: { c: 'value' } } }
+            expect(getValue(obj, ['a', 'b', 'c'])).toBe('value')
+        })
+
+        it('should handle getValue with mixed string/number array path', () => {
+            const obj = { items: [{ name: 'item1' }, { name: 'item2' }] }
+            expect(getValue(obj, ['items', 0, 'name'])).toBe('item1')
+        })
+
+        it('should handle setValue creating arrays for numeric keys', () => {
+            const obj: Record<string, unknown> = {}
+            setValue(obj, 'list[0][1]', 'value')
+            expect(obj).toHaveProperty('list')
+            expect(Array.isArray((obj['list'] as unknown[])[0])).toBe(true)
+        })
+
+        it('should handle isEmpty with numbers and booleans', () => {
+            expect(isEmpty(0)).toBe(false)
+            expect(isEmpty(false)).toBe(false)
+            expect(isEmpty(true)).toBe(false)
+            expect(isEmpty(123)).toBe(false)
+        })
+
+        it('should handle mergeWith when target has Arguments object value', () => {
+            function createArgs(..._args: unknown[]) {
+                // biome-ignore lint/complexity/noArguments: Testing arguments object handling intentionally
+                return arguments
+            }
+            const args = createArgs('a', 'b', 'c')
+            const target = { original: args }
+            const source = { original: { 0: 'x' }, new: 'value' }
+            const result = mergeWith(target, source)
+            expect(result).toHaveProperty('new', 'value')
+            expect(result).toHaveProperty('original')
+        })
+
+        it('should handle mergeWith when srcValue is array but tgtValue is not an object', () => {
+            const target = { data: 42 }
+            const source = { data: [1, 2, 3] }
+            const result = mergeWith(target, source)
+            expect((result as Record<string, unknown>)['data']).toEqual([1, 2, 3])
+        })
+
+        it('should handle circular reference with primitive values in clone', () => {
+            // Create a more complex circular reference that triggers clone with different types
+            const innerObj: Record<string, unknown> = { value: 123 }
+            const outerObj: Record<string, unknown> = { inner: innerObj }
+            innerObj['back'] = outerObj
+
+            const target = {}
+            const result = mergeWith(target, outerObj)
+            expect(result).toBeDefined()
+            expect(result).toHaveProperty('inner')
+        })
+
+        it('should handle circular reference with Date objects', () => {
+            // Date objects are not plain objects, so they test the clone fallback
+            const date = new Date('2024-01-01')
+            const obj: Record<string, unknown> = { date, ref: {} }
+            obj['ref'] = obj
+
+            const result = mergeWith({}, obj)
+            expect(result).toHaveProperty('date')
+            expect((result as Record<string, unknown>)['date']).toBe(date)
+        })
+
+        it('should clone primitive target value when handling circular reference', () => {
+            // Create a scenario where target is a primitive wrapped value when circular ref is found
+            const source: Record<string, unknown> = { a: 1 }
+            source['circular'] = source
+
+            // Merge into a number (primitive) which gets wrapped
+            const result = mergeWith(42, source)
+            expect(result).toBeDefined()
+        })
     })
 })
