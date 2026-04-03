@@ -3,7 +3,8 @@
     "compilerOptions": {
         "declaration": true,
         "declarationMap": true,
-        "isolatedDeclarations": true
+        "isolatedDeclarations": true,
+        "rootDir": "./src"
     },
     "include": ["src/**/*"]
 }

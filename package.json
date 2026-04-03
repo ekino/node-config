@@ -60,7 +60,7 @@
     "scripts": {
         "build": "pnpm run build:esm && pnpm run build:cjs",
         "build:esm": "tsc -p tsconfig.lib.json --outDir lib/esm",
-        "build:cjs": "tsc -p tsconfig.lib.json --module CommonJS --moduleResolution Node --outDir lib/cjs",
+        "build:cjs": "tsc -p tsconfig.lib.json --module CommonJS --moduleResolution Bundler --outDir lib/cjs",
         "postbuild:cjs": "echo '{\"type\": \"commonjs\"}' > lib/cjs/package.json",
         "test": "vitest --run",
         "coverage": "vitest run --coverage",
