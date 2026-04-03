@@ -202,7 +202,7 @@ internals.merge = (object: unknown, source: unknown): unknown =>
 const isAdvancedConfig = (
     conf: { key: string; type: string } | string
 ): conf is { key: string; type: string } => {
-    return (conf as { key: string; type: string }).key !== undefined
+    return typeof (conf as { key?: string }).key === 'string'
 }
 
 load()
