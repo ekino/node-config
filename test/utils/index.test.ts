@@ -615,6 +615,15 @@ describe('src > utils > index', () => {
             expect(result).toBe(false)
         })
 
+        it('should handle unsetValue when path traversal encounters a null value', () => {
+            const obj = {
+                level1: null as unknown as Record<string, unknown>,
+            }
+            // Traversing through null should return false, not throw
+            const result = unsetValue(obj, 'level1.level2.level3')
+            expect(result).toBe(false)
+        })
+
         it('should handle unsetValue with nullsy last key', () => {
             const obj = { a: { b: 'value' } }
             const result = unsetValue(obj, ['a', null as unknown as string])

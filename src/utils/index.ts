@@ -108,7 +108,7 @@ export const unsetValue = (obj: unknown, path?: Path): boolean => {
             return false
         }
         current = current[key] as Record<string, unknown>
-        if (isNullsy(current) == null || typeof current !== 'object') {
+        if (isNullsy(current) || typeof current !== 'object') {
             return false
         }
     }
