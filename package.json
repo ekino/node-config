@@ -49,13 +49,13 @@
         "js-yaml": "4.x"
     },
     "devDependencies": {
-        "@biomejs/biome": "2.3.8",
+        "@biomejs/biome": "2.4.10",
         "@types/js-yaml": "4.0.9",
-        "@types/node": "24.10.1",
-        "@vitest/coverage-v8": "4.0.15",
-        "commitlint": "20.1.0",
-        "typescript": "5.9.3",
-        "vitest": "4.0.15"
+        "@types/node": "24.12.0",
+        "@vitest/coverage-v8": "4.1.2",
+        "commitlint": "20.5.0",
+        "typescript": "6.0.2",
+        "vitest": "4.1.2"
     },
     "scripts": {
         "build": "pnpm run build:esm && pnpm run build:cjs",
