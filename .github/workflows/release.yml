@@ -9,6 +9,7 @@ on:
 
 permissions:
   contents: write
+  id-token: true
 
 run-name: Release v${{ inputs.strategy }}
 
@@ -84,6 +85,4 @@ jobs:
           name: v${{ steps.versioning.outputs.current-version }}
 
       - name: Publish to NPM
-        run: npm publish --access public
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: npm publish --access public --provenance
