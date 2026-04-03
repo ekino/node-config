@@ -10,7 +10,7 @@ type Internals = {
     fillYamlExtension?(filePath: string): string
     read?(keyPath: string): YamlContent
     readEventually?(keyPath: string): unknown | null
-    cast?(type: string, value?: string | number | boolean): string | number | boolean
+    cast?(type: string, value: string | number): string | number | boolean
     getEnvOverrides?(mappings: unknown): unknown
     merge?(object: unknown, source: unknown): unknown
 }
@@ -177,7 +177,8 @@ internals.getEnvOverrides = (
 
         if (isAdvancedConfig(mapping)) {
             mappedKey = mapping.key
-            value = internals.cast?.(mapping.type, envVal) ?? envVal
+            const castableVal = envVal as string | number
+            value = internals.cast?.(mapping.type, castableVal) ?? castableVal
         } else {
             mappedKey = mapping
             value = envVal
