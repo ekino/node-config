@@ -73,14 +73,20 @@ export const load = (): void => {
 
     for (const confFile of confFiles) {
         const fileContent = internals.read?.(path.join(confPath, confFile))
-        internals.merge?.(internals.cfg, fileContent)
+        internals.cfg = (internals.merge?.(internals.cfg, fileContent) ?? internals.cfg) as Record<
+            string,
+            unknown
+        >
     }
 
     // apply environment overrides (optional)
     const envOverridesConfig = internals.readEventually?.(path.join(confPath, 'env_mapping'))
     if (envOverridesConfig) {
         const envOverrides = internals.getEnvOverrides?.(envOverridesConfig)
-        internals.merge?.(internals.cfg, envOverrides)
+        internals.cfg = (internals.merge?.(internals.cfg, envOverrides) ?? internals.cfg) as Record<
+            string,
+            unknown
+        >
     }
 }
 
