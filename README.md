@@ -167,10 +167,14 @@ PORT:
 USE_SSL:
     key: use_ssl
     type: boolean
+TAGS:
+    key: tags
+    type: array
 ```
 
-For now we only support `number` and `boolean` types, if you think others could be useful,
-do not hesitate to contribute!
+We support `number`, `boolean` and `array` types.
+For `array` type, the environment variable value should be a comma-separated string:
+`TAGS="foo,bar,fizz,buzz"` will be cast to `['foo', 'bar', 'fizz', 'buzz']`.
 
 ### CONF_FILES override
 

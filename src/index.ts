@@ -10,7 +10,7 @@ type Internals = {
     fillYamlExtension?(filePath: string): string
     read?(keyPath: string): YamlContent
     readEventually?(keyPath: string): unknown | null
-    cast?(type: string, value: string | number): string | number | boolean
+    cast?(type: string, value: string | number): string | number | boolean | string[]
     getEnvOverrides?(mappings: unknown): unknown
     merge?(object: unknown, source: unknown): unknown
 }
@@ -148,7 +148,7 @@ internals.fillYamlExtension = (filePath: string): string => {
 /**
  * Cast a value using given type.
  */
-internals.cast = (type: string, value: string | number): string | number | boolean => {
+internals.cast = (type: string, value: string | number): string | number | boolean | string[] => {
     switch (type) {
         case 'number': {
             const result = Number(value)
@@ -162,6 +162,8 @@ internals.cast = (type: string, value: string | number): string | number | boole
                 throw new Error(`Config error: expected a boolean got ${value}`)
 
             return value === 'true' || value === '1' || value === 1
+        case 'array':
+            return String(value).split(',')
         default:
             return value
     }
@@ -178,7 +180,7 @@ internals.getEnvOverrides = (
         const envVal = process.env[key]
         if (isNullsy(envVal)) continue
 
-        let value: string | number | boolean
+        let value: string | number | boolean | string[]
         let mappedKey: string
 
         if (isAdvancedConfig(mapping)) {

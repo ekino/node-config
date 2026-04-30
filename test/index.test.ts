@@ -1,3 +1,4 @@
+import path from 'node:path'
 import { afterEach, beforeEach, describe, expect, test } from 'vitest'
 import * as config from '../src/index.js'
 
@@ -134,6 +135,15 @@ describe('src > index', () => {
         const content = config.dump()
         expect(content['useSsl']).toBe(false)
         expect(content['useMocks']).toBe(false)
+    })
+
+    test('I can override config values with array type from env variable', () => {
+        process.env['CONF_DIR'] = path.join(process.cwd(), 'test/conf/array_support')
+        process.env['TAGS'] = 'foo,bar,baz'
+
+        config.load()
+        const content = config.dump()
+        expect(content['tags']).toEqual(['foo', 'bar', 'baz'])
     })
 
     test("It reads yml file if file has no extension and .yaml doesn't exists", () => {
