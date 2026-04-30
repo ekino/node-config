@@ -1,5 +1,4 @@
-port:    8082
+port: 8082
 api:
   credentials:
     key: override-d-yaml
-

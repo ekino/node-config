@@ -1,12 +1,12 @@
 #
 # This is the base config file, loaded for all tests
 #
-port:    8080
+port: 8080
 version: 0.0.0
-name:    test-app0
-uuid:    01A0
+name: test-app0
+uuid: 01A0
 api:
   credentials:
-    id:  base-api-id
+    id: base-api-id
     key: base-api-key
   retries: 3

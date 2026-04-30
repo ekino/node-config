@@ -1,51 +1,88 @@
-name: release
-
+name: Release
 on:
-  push:
-    tags:
-      - 'v**'
+  workflow_dispatch:
+    inputs:
+      strategy:
+        description: Valid semver number <x.x.x> or strategy <patch, minor, major>
+        default: 'patch'
+        required: false
+
+permissions:
+  contents: write
+  id-token: write
+
+run-name: Release v${{ inputs.strategy }}
 
 jobs:
   release:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
+    if: ${{ contains(fromJSON('["pebie", "leguellec", "olivierGuillermEkino", "tduyng"]'), github.actor) }}
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout repository
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
-      - uses: actions/setup-node@v2
+
+      - uses: pnpm/action-setup@v5
+        name: Install pnpm
         with:
-          node-version: 12.x
+          version: 10
+          run_install: false
+
+      - name: Setup Node.js 24.x
+        uses: actions/setup-node@v6
+        with:
+          node-version: '24.x'
+          cache: 'pnpm'
           registry-url: 'https://registry.npmjs.org'
-      - name: Read version from the tag
-        id: get_version
-        run: echo ::set-output name=VERSION::${GITHUB_REF#refs/tags/v}
-      - name: Compile and package library
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build
+        run: pnpm run build
+
+      - name: Set up Git user
         run: |
-          yarn install
-          yarn tsc
-          zip ekino-node-config-$VERSION.zip build package.json README.md CHANGELOG.md
-          unzip -t ekino-node-config-$VERSION.zip
-        env:
-          VERSION: ${{ steps.get_version.outputs.VERSION }}
-      - name: Create a release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "github-actions[bot]"
+
+      - name: Bump version
+        id: versioning
+        run: |
+          npm version ${{ github.event.inputs.strategy }} -m "chore(release): v%s"
+          VERSION=$(node -p "require('./package.json').version")
+          echo "current-version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Version bumped to $VERSION"
+
+      - name: Set up git-cliff
+        uses: kenji-miyake/setup-git-cliff@v2
+
+      - name: Run git-cliff to generate changelog
+        id: changelog
+        run: |
+          git-cliff --latest > temp_changelog
+          cat temp_changelog CHANGELOG.md > temp && mv temp CHANGELOG.md
+          echo "changelog-body<<EOF" >> $GITHUB_OUTPUT
+          cat temp_changelog >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Log changes
+        run: |
+          echo "The changelog will be: $(git cliff --latest)"
+
+      - name: Commit changelog
+        run: |
+          git add CHANGELOG.md
+          git commit -m "docs: update changelog for v${{ steps.versioning.outputs.current-version }}"
+          git push
+
+      - name: Create GitHub release
+        uses: softprops/action-gh-release@v2
         with:
-          tag_name: v${{ steps.get_version.outputs.VERSION }}
-          release_name: "V${{ steps.get_version.outputs.VERSION }}"
-      - name: Upload library code
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: "./ekino-node-config-${{ steps.get_version.outputs.VERSION }}.zip"
-          asset_name: "ekino-node-config-${{ steps.get_version.outputs.VERSION }}"
-          asset_content_type: application/zip
+          body: ${{ steps.changelog.outputs.changelog-body}}
+          tag_name: v${{ steps.versioning.outputs.current-version }}
+          name: v${{ steps.versioning.outputs.current-version }}
+
       - name: Publish to NPM
-        run: npm publish --access public
-        env:
-          VERSION: ${{ steps.get_version.outputs.VERSION }}
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: npm publish --access public --provenance

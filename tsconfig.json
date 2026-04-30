@@ -1,20 +1,26 @@
 {
     "compilerOptions": {
+        "allowUnreachableCode": false,
+        "forceConsistentCasingInFileNames": true,
         "incremental": true,
-        "outDir": "./build",
-        "target": "es6",
-        "module": "commonjs",
-        "allowJs": true,
-        "lib": ["es6"],
-        "alwaysStrict": true,
-        "sourceMap": true,
+        "lib": ["ES2025", "DOM"],
+        "module": "NodeNext",
+        "moduleResolution": "NodeNext",
+        "noErrorTruncation": true,
+        "noFallthroughCasesInSwitch": true,
+        "noImplicitOverride": true,
+        "noImplicitReturns": true,
+        "noPropertyAccessFromIndexSignature": true,
+        "noUncheckedIndexedAccess": true,
+        "noUnusedLocals": true,
+        "noUnusedParameters": true,
+        "outDir": "./lib",
         "skipLibCheck": true,
-        "strictNullChecks": true,
-        "esModuleInterop": true,
-        "noImplicitAny": true,
-        "noImplicitThis": true,
-        "forceConsistentCasingInFileNames": true
+        "sourceMap": true,
+        "target": "ES2022",
+        "typeRoots": ["./node_modules/@types", "src/@types"],
+        "types": ["node"]
     },
-    "includes": ["**/*"],
-    "exclude": ["./node_modules", "./test", "./build", "./coverage", "jest.config.js"]
+    "include": ["src/**/*", "test/**/*.ts"],
+    "exclude": ["node_modules", "lib"]
 }

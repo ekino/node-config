@@ -1,6 +1,6 @@
-port:    8081
+port: 8081
 version: 0.0.1
-env:     prod
+env: prod
 api:
   credentials:
     key: prod-api-key

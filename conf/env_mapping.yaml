@@ -2,7 +2,7 @@
 # Defines environment mapping, loaded for all tests
 #
 PORT:
-  key:  port
+  key: port
   type: number
 
 NAME:
@@ -11,17 +11,17 @@ NAME:
 VERSION: version
 
 ID:
-  key:  id
+  key: id
   type: number
 
 USE_SSL:
-  key:  useSsl
+  key: useSsl
   type: boolean
 
 USE_MOCKS:
-  key:  useMocks
+  key: useMocks
   type: boolean
 
 API_RETRIES:
-  key:  api.retries
+  key: api.retries
   type: number

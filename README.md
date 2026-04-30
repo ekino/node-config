@@ -1,18 +1,16 @@
 # @ekino/config
 
 [![NPM version][npm-image]][npm-url]
-[![Travis CI][travis-image]][travis-url]
 [![Coverage Status][coverage-image]][coverage-url]
-[![styled with prettier][prettier-image]][prettier-url]
 
 A lightweight/opinionated/versatile configuration module powered by yaml.
 
 - [Motivation](#motivation)
 - [Installation](#installation)
 - [Usage](#usage)
-  - [Environment variables override](#environment-variables-override)
-  - [CONF_FILES override](#conf_files-override)
-  - [Inheritance model](#inheritance-model)
+    - [Environment variables override](#environment-variables-override)
+    - [CONF_FILES override](#conf_files-override)
+    - [Inheritance model](#inheritance-model)
 
 ## Motivation
 
@@ -57,17 +55,17 @@ building awesome things like it did for us.
 
 ## Installation
 
-Using yarn
+Using pnpm: `pnpm add @ekino/config`
 
-```
-yarn add @ekino/config
-```
+Or npm: `npm install @ekino/config`
 
-Or npm
+### Git hooks
 
-```
-npm install @ekino/config
-```
+This package configures local Git hooks for the repository by setting:
+
+`core.hooksPath = ./.githooks`
+
+This is done automatically during installation to ensure Git hooks are consistently enabled for contributors.
 
 ## Usage
 
@@ -78,10 +76,12 @@ By default, this module assumes that configuration files are located in the root
 Yet, you can load files with relative path or absolute path anywhere else:
 
 ```
+
 ├─ conf/
-   ├─ base.yaml        # the base configuration
-   ├─ env_mapping.yaml # defines mapping between env vars and config keys
-   └─ dev.yaml         # Optional file loaded if CONF_FILES includes `dev`
+├─ base.yaml # the base configuration
+├─ env_mapping.yaml # defines mapping between env vars and config keys
+└─ dev.yaml # Optional file loaded if CONF_FILES includes `dev`
+
 ```
 
 `base.yaml` is required, it defines the common basic configuration of your application.
@@ -92,7 +92,7 @@ Then to get a config key value in your code:
 # /conf/base.yaml
 host: base.config.io
 external_api:
-  key: xxxxx
+    key: xxxxx
 ```
 
 ```javascript
@@ -122,7 +122,7 @@ Assuming we've got the following config files:
 # /conf/base.yaml
 host: base.config.io
 external_api:
-  key: xxxxx
+    key: xxxxx
 ```
 
 ```yaml
@@ -162,11 +162,11 @@ That's why you can optionally force the type of the gathered environment variabl
 ```yaml
 # /conf/env_mapping.yaml
 PORT:
-  key:  port
-  type: number
+    key: port
+    type: number
 USE_SSL:
-  key:  use_ssl
-  type: boolean
+    key: use_ssl
+    type: boolean
 ```
 
 For now we only support `number` and `boolean` types, if you think others could be useful,
@@ -187,8 +187,8 @@ Let's say we've got those config files:
 ```yaml
 # /conf/base.yaml
 service: awesome
-host:    base.config.io
-port:    8080
+host: base.config.io
+port: 8080
 ```
 
 ```yaml
@@ -259,17 +259,13 @@ CONF_FILES=prod,google,extra node test.js
 base.yaml <— [<CONF_FILES>.yaml] <— [env_mapping.yaml]
 ```
 
-*All files surrounded by `[]` are optional.*
+_All files surrounded by `[]` are optional._
 
 1. Load config from `<CONF_DIR>/base.yaml`
-3. If `CONF_FILES` is defined, load each corresponding file if it exists
-4. If `<CONF_DIR>/env_mapping.yaml` exists and some environment variables match, override with those values
+2. If `CONF_FILES` is defined, load each corresponding file if it exists
+3. If `<CONF_DIR>/env_mapping.yaml` exists and some environment variables match, override with those values
 
 [npm-image]: https://img.shields.io/npm/v/@ekino/config.svg?style=flat-square
 [npm-url]: https://www.npmjs.com/package/@ekino/config
-[travis-image]: https://img.shields.io/travis/ekino/node-config.svg?style=flat-square
-[travis-url]: https://travis-ci.org/ekino/node-config
-[prettier-image]: https://img.shields.io/badge/styled_with-prettier-ff69b4.svg?style=flat-square
-[prettier-url]: https://github.com/prettier/prettier
 [coverage-image]: https://img.shields.io/coveralls/ekino/node-config/master.svg?style=flat-square
 [coverage-url]: https://coveralls.io/github/ekino/node-config?branch=master

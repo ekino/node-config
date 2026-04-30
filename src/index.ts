@@ -1,17 +1,18 @@
-import _ from 'lodash'
+import fs from 'node:fs'
+import path from 'node:path'
 import yaml from 'js-yaml'
-import fs from 'fs'
-import path from 'path'
+import { getValue, isEmpty, isNullsy, mergeWith, setValue, unsetValue } from './utils/index.js'
+
+type YamlContent = Record<string, unknown> | undefined | null | string | number
 
 type Internals = {
     cfg: Record<string, unknown>
     fillYamlExtension?(filePath: string): string
-    // eslint-disable-next-line @typescript-eslint/ban-types
-    read?(keyPath: string): Record<string, unknown> | undefined | null | string | object | number
+    read?(keyPath: string): YamlContent
     readEventually?(keyPath: string): unknown | null
     cast?(type: string, value: string | number): string | number | boolean
     getEnvOverrides?(mappings: unknown): unknown
-    merge?<TObject, TSource>(object: TObject, source: TSource): TObject & TSource
+    merge?(object: unknown, source: unknown): unknown
 }
 
 const internals: Internals = { cfg: {} }
@@ -20,7 +21,7 @@ const internals: Internals = { cfg: {} }
  * Get a value from the configuration. Supports dot notation (eg: "key.subkey.subsubkey")...
  *
  */
-export const get = <T>(key: string): T | unknown => _.get(internals.cfg, key)
+export const get = <T>(key: string): T | unknown => getValue(internals.cfg, key)
 
 /**
  * Set a value in the configuration. Supports dot notation (eg: "key.subkey.subsubkey")
@@ -28,18 +29,18 @@ export const get = <T>(key: string): T | unknown => _.get(internals.cfg, key)
  *
  * If value is null or undefined, key is removed.
  */
-export const set = <T>(key: string, value: T): void => {
-    if (value == null) {
-        _.unset(internals.cfg, key)
+export const set = <T>(key: string, value?: T): void => {
+    if (isNullsy(value)) {
+        unsetValue(internals.cfg, key)
     } else {
-        _.set(internals.cfg, key, value)
+        setValue(internals.cfg, key, value)
     }
 }
 
 /**
  * Dumps the whole config object.
  */
-export const dump = (): unknown => internals.cfg
+export const dump = (): Record<string, unknown> => internals.cfg
 
 /**
  * Loads config:
@@ -66,20 +67,26 @@ export const load = (): void => {
             .map((filename) => filename.trim())
             .filter(
                 // remove garbage and prevent dupes
-                (filename) => !_.isEmpty(filename) && filename !== 'base'
+                (filename) => !isEmpty(filename) && filename !== 'base'
             )
     }
 
-    confFiles.forEach((confFile) => {
+    for (const confFile of confFiles) {
         const fileContent = internals.read?.(path.join(confPath, confFile))
-        internals.merge?.(internals.cfg, fileContent)
-    })
+        internals.cfg = (internals.merge?.(internals.cfg, fileContent) ?? internals.cfg) as Record<
+            string,
+            unknown
+        >
+    }
 
     // apply environment overrides (optional)
     const envOverridesConfig = internals.readEventually?.(path.join(confPath, 'env_mapping'))
-    if (envOverridesConfig !== null) {
+    if (envOverridesConfig) {
         const envOverrides = internals.getEnvOverrides?.(envOverridesConfig)
-        internals.merge?.(internals.cfg, envOverrides)
+        internals.cfg = (internals.merge?.(internals.cfg, envOverrides) ?? internals.cfg) as Record<
+            string,
+            unknown
+        >
     }
 }
 
@@ -87,20 +94,14 @@ export const load = (): void => {
 
 /**
  * Read a yaml file and convert it to javascript object.
- *
- * WARNING: This use a sync function to read file
- *
  */
-internals.read = (
-    keyPath: string
-    // eslint-disable-next-line @typescript-eslint/ban-types
-): Record<string, unknown> | undefined | null | string | object | number => {
+internals.read = (keyPath: string): YamlContent => {
     const cleanedPath = internals.fillYamlExtension?.(keyPath) ?? keyPath
     try {
         const content = fs.readFileSync(cleanedPath, { encoding: 'utf8' })
-        return yaml.load(content)
+        return yaml.load(content) as YamlContent
     } catch (e) {
-        if (e.code !== 'ENOENT') throw e
+        if ((e as NodeJS.ErrnoException).code !== 'ENOENT') throw e
         throw new Error(`Config error: Couldn't find or read file ${cleanedPath}.`)
     }
 }
@@ -118,7 +119,7 @@ internals.readEventually = (keyPath: string): unknown | null => {
         const content = fs.readFileSync(cleanedPath, { encoding: 'utf8' })
         return yaml.load(content)
     } catch (e) {
-        if (e.code !== 'ENOENT') throw e
+        if ((e as NodeJS.ErrnoException).code !== 'ENOENT') throw e
     }
 
     return null
@@ -132,11 +133,11 @@ internals.fillYamlExtension = (filePath: string): string => {
     let result = filePath
 
     // Try with yaml extension first and if not yml
-    if (_.isEmpty(extension)) {
+    if (isEmpty(extension)) {
         try {
             result = `${filePath}.yaml`
             fs.accessSync(result, fs.constants.R_OK)
-        } catch (e) {
+        } catch {
             result = `${filePath}.yml`
         }
     }
@@ -173,25 +174,24 @@ internals.getEnvOverrides = (
     mappings: Record<string, { key: string; type: string } | string>
 ): unknown => {
     const overriden = {}
-
-    _.forOwn(mappings, (mapping, key) => {
+    for (const [key, mapping] of Object.entries(mappings)) {
         const envVal = process.env[key]
-        if (envVal === undefined) return true
+        if (isNullsy(envVal)) continue
 
         let value: string | number | boolean
         let mappedKey: string
 
         if (isAdvancedConfig(mapping)) {
             mappedKey = mapping.key
-            value = internals.cast?.(mapping.type, envVal) ?? envVal
+            const castableVal = envVal as string | number
+            value = internals.cast?.(mapping.type, castableVal) ?? castableVal
         } else {
             mappedKey = mapping
             value = envVal
         }
 
-        _.set(overriden, mappedKey, value)
-    })
-
+        setValue(overriden, mappedKey, value)
+    }
     return overriden
 }
 
@@ -200,13 +200,15 @@ internals.getEnvOverrides = (
  * This function is used to customize the default output of `_.mergeWith()`.
  */
 
-internals.merge = <TObject, TSource>(object: TObject, source: TSource): TObject & TSource =>
-    _.mergeWith(object, source, (object, source) => (Array.isArray(source) ? source : undefined))
+internals.merge = (object: unknown, source: unknown): unknown =>
+    mergeWith(object, source, (_object: unknown, source: unknown) =>
+        Array.isArray(source) ? source : undefined
+    )
 
 const isAdvancedConfig = (
     conf: { key: string; type: string } | string
 ): conf is { key: string; type: string } => {
-    return (conf as { key: string; type: string }).key !== undefined
+    return typeof (conf as { key?: string }).key === 'string'
 }
 
 load()

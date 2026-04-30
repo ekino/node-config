@@ -3,8 +3,24 @@
     "version": "1.0.0",
     "description": "lightweight configuration module powered by yaml",
     "homepage": "https://github.com/ekino/node-config",
-    "main": "build/index.js",
-    "types": "build/index.d.ts",
+    "files": [
+        "lib"
+    ],
+    "type": "module",
+    "main": "./lib/esm/index.js",
+    "types": "lib/esm/index.d.ts",
+    "exports": {
+        ".": {
+            "import": {
+                "types": "./lib/esm/index.d.ts",
+                "default": "./lib/esm/index.js"
+            },
+            "require": {
+                "types": "./lib/cjs/index.d.ts",
+                "default": "./lib/cjs/index.js"
+            }
+        }
+    },
     "repository": {
         "type": "git",
         "url": "https://github.com/ekino/node-config.git"
@@ -22,44 +38,34 @@
     "tags": [
         "config",
         "yaml",
-        "lightweight"
+        "lightweight",
+        "env",
+        "variables environment"
     ],
-    "engines": {
-        "node": ">=12"
-    },
     "dependencies": {
-        "js-yaml": "4.x",
-        "lodash": "4.x"
+        "js-yaml": "4.x"
     },
     "devDependencies": {
-        "@commitlint/cli": "12.x",
-        "@commitlint/config-conventional": "12.x",
-        "@types/jest": "26.x",
-        "@types/js-yaml": "4.x",
-        "@types/lodash": "4.x",
-        "@types/node": "14.x",
-        "@typescript-eslint/eslint-plugin": "4.x",
-        "@typescript-eslint/parser": "4.x",
-        "@yarnpkg/pnpify": "^2.1.0",
-        "conventional-changelog-cli": "2.x",
-        "eslint": "7.x",
-        "eslint-config-prettier": "8.x",
-        "eslint-plugin-prettier": "3.x",
-        "eslint-plugin-you-dont-need-lodash-underscore": "6.x",
-        "husky": "4.x",
-        "jest": "26.x",
-        "nyc": "15.x",
-        "prettier": "2.x",
-        "ts-jest": "26.x",
-        "typescript": "3.9.x"
+        "@biomejs/biome": "2.4.10",
+        "@types/js-yaml": "4.0.9",
+        "@types/node": "24.12.0",
+        "@vitest/coverage-v8": "4.1.2",
+        "commitlint": "20.5.0",
+        "typescript": "6.0.2",
+        "vitest": "4.1.2"
     },
     "scripts": {
-        "tsc": "tsc -d",
-        "test": "jest",
-        "test-cover": "jest --coverage",
-        "coverage": "jest --coverage --coverageReporters=text-lcov | coveralls",
+        "build": "pnpm run build:esm && pnpm run build:cjs",
+        "build:esm": "tsc -p tsconfig.lib.json --outDir lib/esm",
+        "build:cjs": "tsc -p tsconfig.lib.json --module CommonJS --moduleResolution Bundler --outDir lib/cjs",
+        "postbuild:cjs": "echo '{\"type\": \"commonjs\"}' > lib/cjs/package.json",
+        "test": "vitest --run",
+        "coverage": "vitest run --coverage",
+        "check-typing": "tsc -p tsconfig.json --noEmit",
+        "changelog": "git cliff --latest",
         "version": "echo ${npm_package_version}",
-        "lint": "eslint ./*.ts ./test/*.js --fix",
-        "lint-check": "eslint ./*.ts ./test/*.js"
+        "lint": "biome check --write",
+        "check": "biome check",
+        "hook": "git config core.hooksPath ./.githooks || true"
     }
 }
