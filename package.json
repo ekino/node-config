@@ -43,16 +43,15 @@
         "variables environment"
     ],
     "dependencies": {
-        "js-yaml": "4.x"
+        "js-yaml": "5.x"
     },
     "devDependencies": {
-        "@biomejs/biome": "2.4.10",
-        "@types/js-yaml": "4.0.9",
-        "@types/node": "24.12.0",
-        "@vitest/coverage-v8": "4.1.2",
-        "commitlint": "20.5.0",
-        "typescript": "6.0.2",
-        "vitest": "4.1.2"
+        "@biomejs/biome": "2.5.1",
+        "@types/node": "26.0.1",
+        "@vitest/coverage-v8": "4.1.9",
+        "commitlint": "21.1.0",
+        "typescript": "6.0.3",
+        "vitest": "4.1.9"
     },
     "scripts": {
         "build": "pnpm run build:esm && pnpm run build:cjs",

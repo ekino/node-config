@@ -265,31 +265,14 @@ describe('src > index', () => {
         }
         expect(() => {
             config.load()
-        }).toThrow(
-            `can not read an implicit mapping pair; a colon is missed (4:16)
-
- 1 | PORT:
- 2 |   key: port
- 3 |   type: number
- 4 | {error format }
---------------------^
- 5 | error format`
-        )
+        }).toThrow(`expected ':' after a mapping key (4:16)`)
     })
 
     test('It throws an error when base file is not yaml valid', () => {
         process.env = { ...process.env, CONF_DIR: 'test/conf/malformatted_base_file' }
         expect(() => {
             config.load()
-        }).toThrow(
-            `can not read an implicit mapping pair; a colon is missed (5:15)
-
- 2 | version: 0.0.1
- 3 | name: throw-app
- 4 | uuid: 01A
- 5 | {error format}
--------------------^`
-        )
+        }).toThrow(`expected ':' after a mapping key (5:15)`)
     })
 
     test('It throws an error when env file is not yaml valid', () => {
@@ -300,14 +283,7 @@ describe('src > index', () => {
         }
         expect(() => {
             config.load()
-        }).toThrow(
-            `can not read an implicit mapping pair; a colon is missed (3:16)
-
- 1 | port: 80
- 2 | version: 0.0.1
- 3 | {error format }
---------------------^`
-        )
+        }).toThrow(`expected ':' after a mapping key (3:16)`)
     })
 
     test('It throws an error when no base file', () => {

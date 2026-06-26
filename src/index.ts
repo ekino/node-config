@@ -1,6 +1,6 @@
 import fs from 'node:fs'
 import path from 'node:path'
-import yaml from 'js-yaml'
+import { load as yamlLoad } from 'js-yaml'
 import { getValue, isEmpty, isNullsy, mergeWith, setValue, unsetValue } from './utils/index.js'
 
 type YamlContent = Record<string, unknown> | undefined | null | string | number
@@ -99,7 +99,7 @@ internals.read = (keyPath: string): YamlContent => {
     const cleanedPath = internals.fillYamlExtension?.(keyPath) ?? keyPath
     try {
         const content = fs.readFileSync(cleanedPath, { encoding: 'utf8' })
-        return yaml.load(content) as YamlContent
+        return yamlLoad(content) as YamlContent
     } catch (e) {
         if ((e as NodeJS.ErrnoException).code !== 'ENOENT') throw e
         throw new Error(`Config error: Couldn't find or read file ${cleanedPath}.`)
@@ -117,7 +117,7 @@ internals.readEventually = (keyPath: string): unknown | null => {
 
     try {
         const content = fs.readFileSync(cleanedPath, { encoding: 'utf8' })
-        return yaml.load(content)
+        return yamlLoad(content)
     } catch (e) {
         if ((e as NodeJS.ErrnoException).code !== 'ENOENT') throw e
     }
