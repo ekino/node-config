@@ -1,5 +1,5 @@
 import path from 'node:path'
-import { afterEach, beforeEach, describe, expect, test } from 'vitest'
+import { afterEach, beforeEach, describe, expect, expectTypeOf, test } from 'vitest'
 import * as config from '../src/index.js'
 
 describe('src > index', () => {
@@ -359,5 +359,12 @@ describe('src > index', () => {
 
     test('I can get an undefined key', () => {
         expect(config.get('test3')).toEqual(undefined)
+    })
+
+    test('get returns the correct type without union with undefined when key is a string', () => {
+        expectTypeOf(config.get('test')).toEqualTypeOf<unknown>()
+        expectTypeOf(config.get<string>('test')).toEqualTypeOf<string>()
+        expectTypeOf(config.get<{ foo: string }>('test')).toEqualTypeOf<{ foo: string }>()
+        expectTypeOf(config.get<string | undefined>('test')).toEqualTypeOf<string | undefined>()
     })
 })

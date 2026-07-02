@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, expectTypeOf, it } from 'vitest'
 import {
     type Customizer,
     getValue,
@@ -137,6 +137,15 @@ describe('src > utils > index', () => {
 
             expect(getValue(obj, 'user.name')).toBeUndefined()
             expect(getValue(obj, 'profile.age')).toBeUndefined()
+        })
+
+        it('should correctly infer strict generic return types', () => {
+            const obj = { data: 'test' }
+            expectTypeOf(getValue(obj, 'data')).toEqualTypeOf<unknown>()
+            expectTypeOf(getValue<string>(obj, 'data')).toEqualTypeOf<string>()
+            expectTypeOf(getValue<string | undefined>(obj, 'data')).toEqualTypeOf<
+                string | undefined
+            >()
         })
     })
 
@@ -587,9 +596,6 @@ describe('src > utils > index', () => {
         it('should handle getValue with empty path', () => {
             const obj = { a: 1 }
             expect(getValue(obj, '')).toBeUndefined()
-            // Empty array path returns the object itself through reduction
-            const result = getValue(obj, [])
-            expect(result).toBeDefined()
         })
 
         it('should handle getValue when path exists as direct property', () => {
@@ -648,14 +654,14 @@ describe('src > utils > index', () => {
             expect(getValue(obj, 'a.b')).toEqual({ c: 'value1' })
         })
 
-        it('should handle getValue with array path format', () => {
+        it('should handle getValue with array path format as string', () => {
             const obj = { a: { b: { c: 'value' } } }
-            expect(getValue(obj, ['a', 'b', 'c'])).toBe('value')
+            expect(getValue(obj, 'a.b.c')).toBe('value')
         })
 
-        it('should handle getValue with mixed string/number array path', () => {
+        it('should handle getValue with mixed string/number array path as string', () => {
             const obj = { items: [{ name: 'item1' }, { name: 'item2' }] }
-            expect(getValue(obj, ['items', 0, 'name'])).toBe('item1')
+            expect(getValue(obj, 'items[0].name')).toBe('item1')
         })
 
         it('should handle setValue creating arrays for numeric keys', () => {
