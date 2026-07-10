@@ -1,3 +1,13 @@
+## [0.7.1](https://github.com/ekino/node-config/compare/v0.7.0..v0.7.1) - 2026-07-10
+
+### Bug Fixes
+
+- Correct get() return type and add getValue overloads for string paths - ([437b75b](https://github.com/ekino/node-config/commit/437b75b399c3f1563cb444da343d9ce3b4d77617))
+
+### Miscellaneous Tasks
+
+- *(release)* V0.7.1 - ([1cb05d4](https://github.com/ekino/node-config/commit/1cb05d42e41a65b64601ca9327fa7cb6838c59da))
+
 ## [0.7.0](https://github.com/ekino/node-config/compare/v1.0.0..v0.7.0) - 2026-06-26
 
 ### Features
