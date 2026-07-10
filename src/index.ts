@@ -18,10 +18,14 @@ type Internals = {
 const internals: Internals = { cfg: {} }
 
 /**
- * Get a value from the configuration. Supports dot notation (eg: "key.subkey.subsubkey")...
+ * Get a value from the configuration. Supports dot notation (eg: "key.subkey.subsubkey").
  *
+ * @note If you are not absolutely certain that the configuration key exists,
+ * it is highly recommended to explicitly type the generic as `<T | undefined>`
+ * (e.g., `config.get<string | undefined>('myKey')`) to maintain strict type safety,
+ * as this method will return `undefined` at runtime if the key is not found.
  */
-export const get = <T>(key: string): T | unknown => getValue(internals.cfg, key)
+export const get = <T = unknown>(key: string): T => getValue<T>(internals.cfg, key)
 
 /**
  * Set a value in the configuration. Supports dot notation (eg: "key.subkey.subsubkey")

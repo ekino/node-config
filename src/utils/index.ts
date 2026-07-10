@@ -54,9 +54,8 @@ const parsePath = (path: Path): (string | number)[] => {
     )
 }
 
-export const getValue = <T = unknown>(obj: unknown, path?: Path): T | undefined => {
-    if (isNullsy(obj) || !path) return undefined
-
+export function getValue<T = unknown>(obj: unknown, path: string): T {
+    if (isNullsy(obj) || !path) return undefined as T
     if (typeof path === 'string' && Object.hasOwn(obj, path)) {
         return (obj as Record<string, unknown>)[path] as T
     }
@@ -67,7 +66,7 @@ export const getValue = <T = unknown>(obj: unknown, path?: Path): T | undefined 
             return undefined
         }
         return (acc as Record<string, unknown>)[key]
-    }, obj) as T | undefined
+    }, obj) as T
 }
 
 export const setValue = (obj: unknown, path: Path, value: unknown): unknown => {
