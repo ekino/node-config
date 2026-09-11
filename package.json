@@ -51,7 +51,7 @@
         "@vitest/coverage-v8": "4.1.9",
         "commitlint": "21.1.0",
         "typescript": "6.0.3",
-        "vitest": "4.1.9"
+        "vitest": "4.1.11"
     },
     "scripts": {
         "build": "pnpm run build:esm && pnpm run build:cjs",
